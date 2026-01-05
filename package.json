@@ -1,0 +1,38 @@
+{
+  "name": "forkidea-monorepo",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Forkidea - Plateforme d'exploration non-linéaire des idées",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean && rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+    "ui:dev": "pnpm --filter @forkidea/ui run dev",
+    "web:dev": "pnpm --filter @forkidea/web run dev",
+    "web:build": "pnpm --filter @forkidea/web run build",
+    "api:dev": "pnpm --filter @forkidea/api run dev",
+    "api:build": "pnpm --filter @forkidea/api run build"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.0.0",
+    "eslint": "^9.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "keywords": [
+    "forkidea",
+    "monorepo",
+    "brainstorming",
+    "llm",
+    "nextjs",
+    "nestjs",
+    "react",
+    "canvas"
+  ],
+  "author": "Forkidea Team",
+  "license": "MIT"
+}
