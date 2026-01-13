@@ -1,0 +1,76 @@
+:root {
+  --rf-panel-bg: #ffffff;
+  --rf-panel-border: #e5e7eb;
+  --rf-panel-text: #111827;
+  --rf-button-bg: #ffffff;
+  --rf-button-hover: #f3f4f6;
+  --rf-button-active: #e5e7eb;
+  --rf-icon-color: #9ca3af;
+}
+
+.dark {
+  --rf-panel-bg: #1f2937;
+  --rf-panel-border: #374151;
+  --rf-panel-text: #f3f4f6;
+  --rf-button-bg: #1f2937;
+  --rf-button-hover: #374151;
+  --rf-button-active: #1f2937;
+  --rf-icon-color: #6b7280;
+}
+
+.react-flow__minimap {
+  background-color: var(--rf-panel-bg) !important;
+  border-color: var(--rf-panel-border) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-flow__controls {
+  background-color: var(--rf-panel-bg) !important;
+  border-color: var(--rf-panel-border) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.react-flow__controls-button {
+  background-color: var(--rf-button-bg) !important;
+  color: var(--rf-icon-color) !important;
+  border: 1px solid var(--rf-panel-border) !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: var(--rf-button-hover) !important;
+}
+
+.react-flow__controls-button:active {
+  background-color: var(--rf-button-active) !important;
+}
+
+.dark .react-flow__controls-button {
+  color: var(--rf-icon-color) !important;
+}
+
+.dark .react-flow__controls-button:hover {
+  color: var(--rf-icon-color) !important;
+}
+
+.creation-menu {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: auto;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    border-color: #3b82f6;
+  }
+  50% {
+    border-color: #93c5fd;
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}

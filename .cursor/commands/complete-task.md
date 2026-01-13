@@ -1,13 +1,13 @@
-# Build Forkidea Command
+# Build Forky Command
 
-Build Forkidea project following hybrid architecture with monorepo structure.
+Build Forky project following hybrid architecture with monorepo structure.
 
 ## Workflow
 
 ### 1. Analysis
 - **Read agent prompt from section below based on provided agent number**
 - Understand agent's specific tasks and requirements
-- Check reference documentation at `@forkidea-v1/docs/`
+- Check reference documentation at `@forky-v1/docs/`
 - Identify dependencies on previous agents' work
 - Verify current project state (what's already implemented)
 - **Ask questions if prerequisites or context are unclear**
@@ -21,7 +21,7 @@ Build Forkidea project following hybrid architecture with monorepo structure.
 
 ### 3. Execution
 - Implement planned tasks following agent specifications
-- Follow project conventions defined in `@forkidea-v1/docs/`
+- Follow project conventions defined in `@forky-v1/docs/`
 - Use exact versions specified (Next.js 15, React 19, TypeScript 5, etc.)
 - Create all required files and configurations
 - Test implementation thoroughly
@@ -36,7 +36,7 @@ Build Forkidea project following hybrid architecture with monorepo structure.
 
 **Structure:**
 ```
-forkidea-v1/
+forky-v1/
 ├── apps/
 │   ├── web/          # Next.js 15, features: canvas, nodes, sidebar, projects
 │   └── api/          # NestJS (structure only, backend future)

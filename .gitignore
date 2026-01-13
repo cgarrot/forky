@@ -30,9 +30,15 @@ yarn-error.log*
 # Local env files
 .env*.local
 .env
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
+.env.*.local
+*.env
+.envrc
 
 # Vercel
 .vercel
@@ -56,3 +62,41 @@ storybook-static/
 
 # NestJS
 nest-cli.json
+
+# VSCode local history
+.history/
+
+# Local agent artifacts
+.sisyphus/
+
+# Docker
+docker-compose.override.yml
+.dockerignore.local
+
+# Secrets and config files
+*.key
+*.secret
+secrets.json
+config.local.json
+*.pem
+*.crt
+*.cert
+*.p12
+*.pfx
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Source maps
+*.js.map
+*.d.ts.map
+*.mts.map
+*.cts.map
+
+# TypeScript incremental files
+**/*.tsbuildinfo
+
+.history

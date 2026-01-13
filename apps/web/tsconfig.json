@@ -19,6 +19,27 @@
         "name": "next"
       }
     ],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/features/*": ["./src/features/*"],
+      "@forky/ui": ["../../packages/ui/src"],
+      "@forky/ui/atoms/*": ["../../packages/ui/src/atoms/*"],
+      "@forky/ui/molecules/*": ["../../packages/ui/src/molecules/*"],
+      "@forky/ui/organisms/*": ["../../packages/ui/src/organisms/*"],
+      "@forky/ui/templates/*": ["../../packages/ui/src/templates/*"],
+      "@forky/shared": ["../../packages/shared/src"],
+      "@forky/shared/types": ["../../packages/shared/src/types"],
+      "@forky/shared/constants": ["../../packages/shared/src/constants"],
+      "@forky/shared/utils": ["../../packages/shared/src/utils"],
+      "@forky/shared/graph": ["../../packages/shared/src/graph"],
+      "@forky/shared/validation": ["../../packages/shared/src/validation"],
+      "@forky/config": ["../../packages/config/src"],
+      "@forky/contracts": ["../../packages/contracts/src"],
+      "@forky/contracts/dto": ["../../packages/contracts/src/dto"],
+      "@forky/contracts/events": ["../../packages/contracts/src/events"],
+      "@forky/contracts/interfaces": ["../../packages/contracts/src/interfaces"]
+    }
+  },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }

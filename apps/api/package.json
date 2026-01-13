@@ -1,12 +1,13 @@
 {
-  "name": "@forkidea/api",
+  "name": "@forky/api",
   "version": "0.0.1",
-  "description": "Forkidea API - NestJS backend",
-  "author": "Forkidea Team",
+  "description": "Forky API - NestJS backend",
+  "author": "Forky Team",
   "private": true,
   "license": "MIT",
   "scripts": {
     "build": "nest build",
+    "predev": "nest build",
     "dev": "nest start --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -19,18 +20,39 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "db:generate": "prisma generate",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.9",
+    "@ai-sdk/openai": "^3.0.8",
+    "@ai-sdk/openai-compatible": "^2.0.4",
+    "@forky/config": "workspace:^",
+    "@forky/shared": "workspace:^",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/jwt": "^11.0.2",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/platform-socket.io": "^11.1.11",
+    "@nestjs/swagger": "^11.2.4",
+    "@nestjs/websockets": "^11.1.11",
+    "@prisma/client": "5.22.0",
+    "ai": "^6.0.28",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
+    "ioredis": "^5.9.1",
+    "prisma": "5.22.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

@@ -1,4 +1,4 @@
-# Plan d'Implémentation - Forkidea avec Architecture Hybride
+# Plan d'Implémentation - Forky avec Architecture Hybride
 
 > **Guide complet avec prompts pour Cursor/Claude Code agents**
 
@@ -17,12 +17,12 @@
 ## 1. Vue d'Ensemble
 
 ### Objectif
-Construire l'application **Forkidea** (plateforme d'exploration non-linéaire des idées) en utilisant l'architecture hybride définie dans les docs.
+Construire l'application **Forky** (plateforme d'exploration non-linéaire des idées) en utilisant l'architecture hybride définie dans les docs.
 
 ### Architecture Cible
 
 ```
-forkidea-v1/
+forky-v1/
 ├── apps/
 │   ├── web/                          # Frontend Next.js
 │   │   ├── src/
@@ -112,20 +112,20 @@ forkidea-v1/
 
 ## 2. Phase 1 : Préparation & Backup
 
-### 🎯 Prompt Agent 1 : Initialiser le Projet Forkidea
+### 🎯 Prompt Agent 1 : Initialiser le Projet Forky
 
-**Rôle** : Initialiser le projet Forkidea avec la structure monorepo
+**Rôle** : Initialiser le projet Forky avec la structure monorepo
 
 **Prompt :**
 ```
-Tu es un expert DevOps et architecture de logiciel. Ta tâche est d'initialiser le projet Forkidea avec une architecture monorepo propre.
+Tu es un expert DevOps et architecture de logiciel. Ta tâche est d'initialiser le projet Forky avec une architecture monorepo propre.
 
 Contexte :
-- Projet : Forkidea (plateforme d'exploration non-linéaire des idées)
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/
+- Projet : Forky (plateforme d'exploration non-linéaire des idées)
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/
 - Architecture cible : Monorepo avec pnpm workspace et architecture hybride
 
-Fonctionnalités principales de Forkidea :
+Fonctionnalités principales de Forky :
 - Canvas infini avec React Flow
 - Nœuds de brainstorming avec génération LLM
 - Connexions entre nœuds
@@ -177,9 +177,9 @@ Tâches à accomplir :
      * build: "turbo run build"
      * lint: "turbo run lint"
      * clean: "turbo run clean && rm -rf node_modules"
-     * ui:dev: "pnpm --filter @forkidea/ui run dev"
-     * web:dev: "pnpm --filter @forkidea/web run dev"
-     * web:build: "pnpm --filter @forkidea/web run build"
+     * ui:dev: "pnpm --filter @forky/ui run dev"
+     * web:dev: "pnpm --filter @forky/web run dev"
+     * web:build: "pnpm --filter @forky/web run build"
    - Ajouter devDependencies : turbo, typescript, eslint
 
 6. **Créer tsconfig.base.json**
@@ -193,7 +193,7 @@ Tâches à accomplir :
    - Configurer les dépendances entre packages
 
 8. **Créer README.md à la racine**
-   - Documenter le projet Forkidea
+   - Documenter le projet Forky
    - Expliquer l'architecture monorepo
    - Documenter les commandes principales (pnpm dev, pnpm build, etc.)
 
@@ -228,19 +228,19 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert TypeScript et architecture de packages. Ta tâche est de créer les packages partagés pour le monorepo Forkidea.
+Tu es un expert TypeScript et architecture de packages. Ta tâche est de créer les packages partagés pour le monorepo Forky.
 
 Contexte :
 - Monorepo déjà initialisé avec structure de base
 - Packages à créer : packages/shared/, packages/config/, packages/contracts/
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/
 
 Tâches à accomplir :
 
 1. **Créer packages/shared**
    - Créer la structure : src/types/, src/constants/, src/utils/, src/graph/, src/validation/
    - Créer package.json avec :
-     * Nom : @forkidea/shared
+     * Nom : @forky/shared
      * Version : 0.1.0
      * Type : module
      * Main : ./dist/index.js
@@ -339,7 +339,7 @@ Tâches à accomplir :
 8. **Créer packages/config**
    - Créer la structure : src/
    - Créer package.json avec :
-     * Nom : @forkidea/config
+     * Nom : @forky/config
      * Version : 0.1.0
      * Type : module
      * Main : ./dist/index.js
@@ -364,7 +364,7 @@ Tâches à accomplir :
 10. **Créer packages/contracts**
     - Créer la structure : src/dto/, src/events/, src/interfaces/
     - Créer package.json avec :
-      * Nom : @forkidea/contracts
+      * Nom : @forky/contracts
       * Version : 0.1.0
       * Type : module
       * Main : ./dist/index.js
@@ -404,9 +404,9 @@ Tâches à accomplir :
     - Créer index.ts avec tous les exports
 
 14. **Construire les packages**
-    - Exécuter : pnpm --filter @forkidea/shared run build
-    - Exécuter : pnpm --filter @forkidea/config run build
-    - Exécuter : pnpm --filter @forkidea/contracts run build
+    - Exécuter : pnpm --filter @forky/shared run build
+    - Exécuter : pnpm --filter @forky/config run build
+    - Exécuter : pnpm --filter @forky/contracts run build
     - Vérifier que les exports sont corrects
 
 Sortie attendue :
@@ -427,13 +427,13 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer le package UI avec les atomes de base selon Atomic Design pour Forkidea.
+Tu es un expert React et Design Systems. Ta tâche est de créer le package UI avec les atomes de base selon Atomic Design pour Forky.
 
 Contexte :
 - Monorepo déjà initialisé
 - Packages partagés déjà créés (shared, config, contracts)
 - Package à créer : packages/ui/
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/DESIGN_SYSTEM.md
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
 - Style du projet : Moderne, clean, professionel avec accents bleus et gris
 
 Tâches à accomplir :
@@ -441,7 +441,7 @@ Tâches à accomplir :
 1. **Initialiser packages/ui**
    - Créer la structure : src/atoms/, src/molecules/, src/organisms/, src/templates/, src/styles/
    - Créer package.json avec :
-     * Nom : @forkidea/ui
+     * Nom : @forky/ui
      * Version : 0.1.0
      * Type : module
      * Main : ./dist/index.js
@@ -465,7 +465,7 @@ Tâches à accomplir :
 3. **Créer l'atome Button**
    - Créer src/atoms/Button/Button.tsx
    - Props : variant ('primary' | 'secondary' | 'danger' | 'ghost'), size ('sm' | 'md' | 'lg'), loading, disabled, icon, fullWidth
-   - Utiliser cn() de @forkidea/shared/utils
+   - Utiliser cn() de @forky/shared/utils
    - Utiliser Loader2 de lucide-react pour loading
    - Styling avec Tailwind : rounded-md, font-medium, transition-colors
    - Variants de couleurs : primary (blue-600), secondary (gray-200), danger (red-600), ghost (hover:bg-gray-100)
@@ -544,8 +544,8 @@ Tâches à accomplir :
     - Importer les styles globaux
 
 13. **Construire et tester le package**
-    - Exécuter : pnpm --filter @forkidea/ui run build
-    - Exécuter : pnpm --filter @forkidea/ui run dev (storybook)
+    - Exécuter : pnpm --filter @forky/ui run build
+    - Exécuter : pnpm --filter @forky/ui run dev (storybook)
     - Vérifier que toutes les stories sont valides
     - Vérifier que les exports sont accessibles
 
@@ -564,19 +564,19 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer les molecules du package UI pour Forkidea.
+Tu es un expert React et Design Systems. Ta tâche est de créer les molecules du package UI pour Forky.
 
 Contexte :
 - packages/ui avec atomes déjà créés
-- Molecules à créer pour Forkidea : NodeHeader, FormField, QuickActionButton, Dropzone, MediaPreview
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/DESIGN_SYSTEM.md
+- Molecules à créer pour Forky : NodeHeader, FormField, QuickActionButton, Dropzone, MediaPreview
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
 
 Tâches à accomplir :
 
 1. **Créer la molecule NodeHeader**
    - Créer src/molecules/NodeHeader/NodeHeader.tsx
-   - Utiliser Button de @forkidea/ui/atoms
-   - Utiliser Badge de @forkidea/ui/atoms
+   - Utiliser Button de @forky/ui/atoms
+   - Utiliser Badge de @forky/ui/atoms
    - Utiliser des icônes de lucide-react (MoreVertical, Trash2, Edit3, Copy, Check)
    - Props :
      * title : string (optionnel)
@@ -593,7 +593,7 @@ Tâches à accomplir :
 
 2. **Créer la molecule FormField**
    - Créer src/molecules/FormField/FormField.tsx
-   - Utiliser Input de @forkidea/ui/atoms
+   - Utiliser Input de @forky/ui/atoms
    - Props :
      * label : string (optionnel)
      * error : string (optionnel)
@@ -609,7 +609,7 @@ Tâches à accomplir :
 
 3. **Créer la molecule QuickActionButton**
    - Créer src/molecules/QuickActionButton/QuickActionButton.tsx
-   - Utiliser Button de @forkidea/ui/atoms
+   - Utiliser Button de @forky/ui/atoms
    - Props :
      * label : string
      * onClick : callback
@@ -657,7 +657,7 @@ Tâches à accomplir :
 
 6. **Créer la molecule NodePrompt**
    - Créer src/molecules/NodePrompt/NodePrompt.tsx
-   - Utiliser Input de @forkidea/ui/atoms
+   - Utiliser Input de @forky/ui/atoms
    - Props :
      * value : string
      * onChange : (value: string) => void
@@ -695,7 +695,7 @@ Tâches à accomplir :
    - Mettre à jour src/index.ts pour inclure les molecules
 
 9. **Construire et tester**
-   - Exécuter : pnpm --filter @forkidea/ui run build
+   - Exécuter : pnpm --filter @forky/ui run build
    - Vérifier que toutes les stories s'affichent correctement dans Storybook
    - Vérifier que les exports sont accessibles
 
@@ -712,13 +712,13 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer les organismes et templates du package UI pour Forkidea.
+Tu es un expert React et Design Systems. Ta tâche est de créer les organismes et templates du package UI pour Forky.
 
 Contexte :
 - packages/ui avec atomes et molecules déjà créés
 - Organismes à créer : Sidebar, CanvasControls, ToastContainer, PresenceIndicator
 - Templates à créer : AppLayout, ProjectLayout, CanvasLayout
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/DESIGN_SYSTEM.md
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
 
 Tâches à accomplir :
 
@@ -739,7 +739,7 @@ Tâches à accomplir :
 
 2. **Créer l'organisme CanvasControls**
    - Créer src/organisms/CanvasControls/CanvasControls.tsx
-   - Utiliser Button de @forkidea/ui/atoms
+   - Utiliser Button de @forky/ui/atoms
    - Utiliser des icônes de lucide-react (ZoomIn, ZoomOut, Maximize2, RotateCcw)
    - Props :
      * onZoomIn : callback
@@ -761,7 +761,7 @@ Tâches à accomplir :
    - Types :
      * Toast : id, variant ('success' | 'error' | 'warning' | 'info'), message, duration, action?
    - ToastStore : toasts, addToast, removeToast, clearAll
-   - Utiliser Button de @forkidea/ui/atoms
+   - Utiliser Button de @forky/ui/atoms
    - Utiliser des icônes de lucide-react (Check, X, AlertCircle, Info, AlertTriangle)
    - Position : fixed top-4 right-4, flex flex-col gap-2, w-full max-w-md
    - Animation : slide-in-from-right avec framer-motion
@@ -799,7 +799,7 @@ Tâches à accomplir :
 
 6. **Créer le template AppLayout**
    - Créer src/templates/AppLayout/AppLayout.tsx
-   - Utiliser Sidebar de @forkidea/ui/organisms
+   - Utiliser Sidebar de @forky/ui/organisms
    - Props :
      * children : React.ReactNode
      * sidebar : React.ReactNode (optionnel)
@@ -849,7 +849,7 @@ Tâches à accomplir :
    - Mettre à jour src/index.ts pour inclure organismes et templates
 
 10. **Construire et tester**
-    - Exécuter : pnpm --filter @forkidea/ui run build
+    - Exécuter : pnpm --filter @forky/ui run build
     - Vérifier que toutes les stories s'affichent correctement dans Storybook
     - Vérifier que tous les exports sont accessibles
     - Tester l'intégration des composants entre eux
@@ -871,21 +871,21 @@ Sortie attendue :
 
 ### 🎯 Prompt Agent 6 : Intégrer UI Package dans Web App
 
-**Rôle** : Intégrer le package @forkidea/ui dans l'application web apps/web
+**Rôle** : Intégrer le package @forky/ui dans l'application web apps/web
 
 **Prompt :**
 ```
-Tu es un expert React et intégration. Ta tâche est d'intégrer le package @forkidea/ui dans l'application web apps/web.
+Tu es un expert React et intégration. Ta tâche est d'intégrer le package @forky/ui dans l'application web apps/web.
 
 Contexte :
 - packages/ui construit et fonctionnel
 - apps/web initialisé avec Next.js 15
-- Objectif : Utiliser @forkidea/ui pour tous les composants UI
+- Objectif : Utiliser @forky/ui pour tous les composants UI
 
 Tâches à accomplir :
 
-1. **Installer @forkidea/ui dans apps/web**
-   - Exécuter : pnpm --filter @forkidea/web add @forkidea/ui @forkidea/shared @forkidea/config
+1. **Installer @forky/ui dans apps/web**
+   - Exécuter : pnpm --filter @forky/web add @forky/ui @forky/shared @forky/config
    - Vérifier que les dépendances sont bien installées dans apps/web/package.json
 
 2. **Configurer les path aliases dans apps/web/tsconfig.json**
@@ -893,45 +893,45 @@ Tâches à accomplir :
    - Ajouter les paths :
      * "@/*" : ["./src/*"]
      * "@/features/*" : ["./src/features/*"]
-     * "@forkidea/ui" : ["../../packages/ui/src"]
-     * "@forkidea/shared" : ["../../packages/shared/src"]
-     * "@forkidea/config" : ["../../packages/config/src"]
+     * "@forky/ui" : ["../../packages/ui/src"]
+     * "@forky/shared" : ["../../packages/shared/src"]
+     * "@forky/config" : ["../../packages/config/src"]
    - S'assurer que baseUrl est "./"
    - S'assurer que le moduleResolution est "bundler"
 
 3. **Configurer Tailwind CSS dans apps/web**
    - Mettre à jour apps/web/tailwind.config.ts
-   - Importer les styles de @forkidea/ui/steps/variables.css
+   - Importer les styles de @forky/ui/steps/variables.css
    - Configurer les content paths
    - Configurer les plugins
 
 4. **Créer la page principale (apps/web/src/app/page.tsx)**
-   - Créer une page simple avec AppLayout de @forkidea/ui
-   - Importer AppLayout, Sidebar, ToastContainer de @forkidea/ui
-   - Importer useToast de @forkidea/ui
+   - Créer une page simple avec AppLayout de @forky/ui
+   - Importer AppLayout, Sidebar, ToastContainer de @forky/ui
+   - Importer useToast de @forky/ui
    - Créer un canvas de base avec React Flow
-   - Utiliser les composants de @forkidea/ui
+   - Utiliser les composants de @forky/ui
    - S'assurer que la page est un Client Component ('use client')
 
 5. **Créer le layout principal (apps/web/src/app/layout.tsx)**
-   - Importer les styles globaux de @forkidea/ui
+   - Importer les styles globaux de @forky/ui
    - Configurer le metadata (title, description)
    - Configurer les fonts (Inter)
-   - Importer ToastContainer de @forkidea/ui
+   - Importer ToastContainer de @forky/ui
    - S'assurer que le layout est un Server Component (pas 'use client')
 
 6. **Créer le fichier globals.css**
-   - Importer les styles de @forkidea/ui
+   - Importer les styles de @forky/ui
    - Ajouter les styles spécifiques à l'application
 
 7. **Créer une page de test pour les composants UI**
    - Créer apps/web/src/app/test-ui/page.tsx
-   - Importer tous les atomes de @forkidea/ui
+   - Importer tous les atomes de @forky/ui
    - Créer des exemples d'utilisation pour chaque composant
    - S'assurer que tous les composants fonctionnent correctement
 
 8. **Tester l'intégration**
-   - Exécuter : pnpm --filter @forkidea/web run dev
+   - Exécuter : pnpm --filter @forky/web run dev
    - Ouvrir http://localhost:3000
    - Vérifier que :
      * Le layout s'affiche correctement
@@ -940,26 +940,26 @@ Tâches à accomplir :
      * Les animations fonctionnent
    - Tester la page de test UI : http://localhost:3000/test-ui
 
-9. **Créer les composants de base pour Forkidea**
-   - Créer une Sidebar simple avec @forkidea/ui
-   - Créer un CanvasControls avec @forkidea/ui
+9. **Créer les composants de base pour Forky**
+   - Créer une Sidebar simple avec @forky/ui
+   - Créer un CanvasControls avec @forky/ui
    - Intégrer ces composants dans la page principale
    - S'assurer que l'interactivité fonctionne
 
 10. **Vérifier les imports**
     - Faire une recherche pour les imports de composants locaux
-    - S'assurer que tous les imports utilisent @forkidea/ui
+    - S'assurer que tous les imports utilisent @forky/ui
     - Corriger tous les imports cassés
 
 Sortie attendue :
-- @forkidea/ui intégré dans apps/web
+- @forky/ui intégré dans apps/web
 - Path aliases configurés
-- Tailwind CSS configuré avec les styles de @forkidea/ui
+- Tailwind CSS configuré avec les styles de @forky/ui
 - Page principale créée avec AppLayout
 - Layout principal créé avec ToastContainer
 - Page de test UI créée
-- Composants de base Forkidea (Sidebar, CanvasControls) créés
-- Application web fonctionnelle avec @forkidea/ui
+- Composants de base Forky (Sidebar, CanvasControls) créés
+- Application web fonctionnelle avec @forky/ui
 ```
 
 ---
@@ -972,16 +972,16 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer la feature Canvas selon l'architecture hybride pour Forkidea.
+Tu es un expert React et architecture de features. Ta tâche est de créer la feature Canvas selon l'architecture hybride pour Forky.
 
 Contexte :
 - apps/web avec structure monorepo initialisée
-- @forkidea/ui intégré
+- @forky/ui intégré
 - Feature Canvas à créer dans apps/web/src/features/canvas/
 - Composants React Flow à utiliser : @xyflow/react (version 12.0.0)
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Canvas pour Forkidea :
+Fonctionnalités de Canvas pour Forky :
 - Canvas infini avec pan et zoom
 - Support pour React Flow
 - Grille de fond
@@ -1042,7 +1042,7 @@ Tâches à accomplir :
 
 5. **Créer le composant CreationMenu**
    - Créer apps/web/src/features/canvas/components/CreationMenu.tsx
-   - Utiliser Button, Modal de @forkidea/ui
+   - Utiliser Button, Modal de @forky/ui
    - Props : isOpen, onClose, onCreateNode
    - Menu pour créer différents types de nœuds
    - Options : Standard Node, Plan, Flashcard, Checklist, etc.
@@ -1050,7 +1050,7 @@ Tâches à accomplir :
    - Boutons d'action (Create, Cancel)
 
 6. **Créer le composant CanvasControls**
-   - Utiliser @forkidea/ui/organisms/CanvasControls
+   - Utiliser @forky/ui/organisms/CanvasControls
    - Adapter les handlers pour utiliser useCanvasState
    - Configurer onZoomIn, onZoomOut, onFitView, onResetView
    - Afficher le zoom level actuel
@@ -1119,17 +1119,17 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer la feature Nodes selon l'architecture hybride pour Forkidea.
+Tu es un expert React et architecture de features. Ta tâche est de créer la feature Nodes selon l'architecture hybride pour Forky.
 
 Contexte :
 - apps/web avec structure monorepo
-- @forkidea/ui intégré
+- @forky/ui intégré
 - Feature canvas créée
 - Feature nodes à créer dans apps/web/src/features/nodes/
 - LLM integration : génération de réponses avec streaming
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Nodes pour Forkidea :
+Fonctionnalités de Nodes pour Forky :
 - Nœuds de brainstorming avec prompt et réponse LLM
 - Édition du prompt
 - Génération LLM avec streaming
@@ -1145,8 +1145,8 @@ Tâches à accomplir :
 
 2. **Créer le composant CustomNode**
    - Créer apps/web/src/features/nodes/components/CustomNode.tsx
-   - Utiliser NodeHeader, Badge, Button de @forkidea/ui
-   - Utiliser NodePrompt et NodeResponse de @forkidea/ui/molecules
+   - Utiliser NodeHeader, Badge, Button de @forky/ui
+   - Utiliser NodePrompt et NodeResponse de @forky/ui/molecules
    - Props :
      * id : string
      * data : Node
@@ -1194,8 +1194,8 @@ Tâches à accomplir :
 6. **Créer le service llm-service**
    - Créer apps/web/src/features/nodes/services/llm-service.ts
    - Fonction generateLLMResponse(nodeId, nodes, edges, onChunk, onComplete, onError)
-   - Utiliser @forkidea/config pour les modèles LLM
-   - Utiliser buildContext de @forkidea/shared/graph pour construire le contexte
+   - Utiliser @forky/config pour les modèles LLM
+   - Utiliser buildContext de @forky/shared/graph pour construire le contexte
    - Streaming de la réponse avec chunks
    - Gestion des erreurs
    - Callbacks :
@@ -1205,7 +1205,7 @@ Tâches à accomplir :
 
 7. **Créer le service cascade-service**
    - Créer apps/web/src/features/nodes/services/cascade-service.ts
-   - Utiliser cascade de @forkidea/shared/graph
+   - Utiliser cascade de @forky/shared/graph
    - Fonction cascadeUpdate(nodeId, nodes, edges, onUpdate)
    - Identifier les nœuds dépendants
    * Propager les changements aux nœuds dépendants
@@ -1273,16 +1273,16 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer les features Sidebar et Projects selon l'architecture hybride pour Forkidea.
+Tu es un expert React et architecture de features. Ta tâche est de créer les features Sidebar et Projects selon l'architecture hybride pour Forky.
 
 Contexte :
 - apps/web avec structure monorepo
-- @forkidea/ui intégré
+- @forky/ui intégré
 - Features canvas et nodes créées
 - Features sidebar et projects à créer dans apps/web/src/features/
-- Documentation de référence : /Users/cgarrot/zob/forkidea-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Sidebar pour Forkidea :
+Fonctionnalités de Sidebar pour Forky :
 - Sidebar avec navigation entre projets
 - Création de nouveaux projets
 - Liste des projets
@@ -1291,7 +1291,7 @@ Fonctionnalités de Sidebar pour Forkidea :
 - Éditeur de système prompt
 - Toggle sidebar (ouvert/fermé)
 
-Fonctionnalités de Projects pour Forkidea :
+Fonctionnalités de Projects pour Forky :
 - Créer/sauvegarder/charger des projets
 - Gestion du système prompt par projet
 - Gestion des quick actions (macros)
@@ -1306,7 +1306,7 @@ Tâches à accomplir :
 
 2. **Créer le composant Sidebar**
    - Créer apps/web/src/features/sidebar/components/Sidebar.tsx
-   - Utiliser Sidebar de @forkidea/ui/organisms
+   - Utiliser Sidebar de @forky/ui/organisms
    - Créer un composant wrapper qui étend Sidebar
    - Contenu :
      * Logo/branding en haut
@@ -1331,7 +1331,7 @@ Tâches à accomplir :
 
 5. **Créer le composant ProjectList**
    - Créer apps/web/src/features/projects/components/ProjectList.tsx
-   - Utiliser Button, Badge de @forkidea/ui
+   - Utiliser Button, Badge de @forky/ui
    - Props :
      * projects : Project[]
      * currentProjectId : string | null
@@ -1346,7 +1346,7 @@ Tâches à accomplir :
 
 6. **Créer le composant NewProjectButton**
    - Créer apps/web/src/features/projects/components/NewProjectButton.tsx
-   - Utiliser Button, Modal, FormField de @forkidea/ui
+   - Utiliser Button, Modal, FormField de @forky/ui
    - Ouvre une modale pour créer un projet
    - Formulaire :
      * Name (required)
@@ -1356,7 +1356,7 @@ Tâches à accomplir :
 
 7. **Créer le composant SystemPromptEditor**
    - Créer apps/web/src/features/projects/components/SystemPromptEditor.tsx
-   - Utiliser Input, Button de @forkidea/ui
+   - Utiliser Input, Button de @forky/ui
    - Props :
      * systemPrompt : string
      * onUpdate : (prompt: string) => void
@@ -1367,7 +1367,7 @@ Tâches à accomplir :
 
 8. **Créer le composant QuickActionsList**
    - Créer apps/web/src/features/projects/components/QuickActionsList.tsx
-   - Utiliser QuickActionButton, Modal de @forkidea/ui
+   - Utiliser QuickActionButton, Modal de @forky/ui
    - Props :
      * quickActions : QuickAction[]
      * onExecute : (action: QuickAction) => void
@@ -1380,7 +1380,7 @@ Tâches à accomplir :
 
 9. **Créer le composant QuickActionModal**
    - Créer apps/web/src/features/projects/components/QuickActionModal.tsx
-   - Utiliser Modal, FormField, Input, Button de @forkidea/ui
+   - Utiliser Modal, FormField, Input, Button de @forky/ui
    - Props :
      * isOpen : boolean
      * onClose : callback
@@ -1499,7 +1499,7 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert en validation et documentation. Ta tâche est de valider l'architecture complète de Forkidea et de créer la documentation.
+Tu es un expert en validation et documentation. Ta tâche est de valider l'architecture complète de Forky et de créer la documentation.
 
 Contexte :
 - Toutes les features créées (canvas, nodes, sidebar, projects)
@@ -1526,7 +1526,7 @@ Tâches à accomplir :
    - Vérifier qu'il n'y a pas d'erreurs dans la console
 
 2. **Valider le package UI**
-   - Exécuter : pnpm --filter @forkidea/ui run dev
+   - Exécuter : pnpm --filter @forky/ui run dev
    - Ouvrir http://localhost:6006 (Storybook)
    - Vérifier que toutes les stories s'affichent
    - Vérifier que les composants sont bien stylés
@@ -1542,9 +1542,9 @@ Tâches à accomplir :
    - Corriger tous les avertissements
 
 5. **Créer le README principal**
-   - Mettre à jour /Users/cgarrot/zob/forkidea-v1/README.md
+   - Mettre à jour /Users/cgarrot/zob/forky-v1/README.md
    - Inclure :
-     * Description de Forkidea
+     * Description de Forky
      * Screenshot/démonstration
      * Installation
      * Commandes de développement
@@ -1576,7 +1576,7 @@ Tâches à accomplir :
    * Processus de review
 
 8. **Mettre à jour les docs existants**
-   - Mettre à jour docs/ARCHITECTURE_HYBRID.md avec les spécificités de Forkidea
+   - Mettre à jour docs/ARCHITECTURE_HYBRID.md avec les spécificités de Forky
    - Mettre à jour docs/DESIGN_SYSTEM.md avec les composants spécifiques
    - Mettre à jour docs/FEATURE_STRUCTURE.md avec les features implémentées
 
@@ -1590,7 +1590,7 @@ Tâches à accomplir :
 
 10. **Git commit**
     - Committer tous les changements
-    - Message : "feat: implement Forkidea with hybrid architecture v1.0"
+    - Message : "feat: implement Forky with hybrid architecture v1.0"
     - Pousser les changements
 
 Sortie attendue :
@@ -1609,16 +1609,16 @@ Sortie attendue :
 ## 📚 Références
 
 ### Documents d'Architecture
-- `forkidea-v1/docs/ARCHITECTURE_HYBRID.md` - Architecture hybride complète
-- `forkidea-v1/docs/DESIGN_SYSTEM.md` - Design system détaillé
-- `forkidea-v1/docs/FRONTEND_ARCHITECTURE.md` - Architecture frontend
-- `forkidea-v1/docs/BACKEND_ARCHITECTURE.md` - Architecture backend
-- `forkidea-v1/docs/FEATURE_STRUCTURE.md` - Structure des features
-- `forkidea-v1/docs/MIGRATION_GUIDE.md` - Guide de migration
-- `forkidea-v1/docs/CODING_STANDARDS.md` - Standards de code
+- `forky-v1/docs/ARCHITECTURE_HYBRID.md` - Architecture hybride complète
+- `forky-v1/docs/DESIGN_SYSTEM.md` - Design system détaillé
+- `forky-v1/docs/FRONTEND_ARCHITECTURE.md` - Architecture frontend
+- `forky-v1/docs/BACKEND_ARCHITECTURE.md` - Architecture backend
+- `forky-v1/docs/FEATURE_STRUCTURE.md` - Structure des features
+- `forky-v1/docs/MIGRATION_GUIDE.md` - Guide de migration
+- `forky-v1/docs/CODING_STANDARDS.md` - Standards de code
 
-### Documentation Forkidea
-- `forkidea-v1/docs/` - Documentation complète du projet
+### Documentation Forky
+- `forky-v1/docs/` - Documentation complète du projet
 
 ### Technologies
 - Next.js 15.0.0
@@ -1689,7 +1689,7 @@ Ces fonctionnalités ne sont PAS incluses dans ce plan d'implémentation, mais s
 
 ---
 
-**Plan d'implémentation créé pour le projet Forkidea v1.0**
+**Plan d'implémentation créé pour le projet Forky v1.0**
 **Date de création : 2026-01-05**
 **Version : 1.0**
 **Architecture : Hybride (Atomic + Feature-Based)**

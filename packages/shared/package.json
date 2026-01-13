@@ -1,5 +1,5 @@
 {
-  "name": "@forkidea/shared",
+  "name": "@forky/shared",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -36,9 +36,12 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "clsx": "^2.0.0",
+    "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
   }
 }

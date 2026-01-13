@@ -1,5 +1,5 @@
 {
-  "name": "@forkidea/config",
+  "name": "@forky/config",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -24,9 +24,11 @@
     "lint": "eslint src/"
   },
   "dependencies": {
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "@forky/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
   }
 }

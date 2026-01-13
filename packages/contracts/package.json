@@ -1,5 +1,5 @@
 {
-  "name": "@forkidea/contracts",
+  "name": "@forky/contracts",
   "version": "0.1.0",
   "private": false,
   "type": "module",
@@ -27,7 +27,12 @@
     "build": "tsc",
     "lint": "eslint src/"
   },
+  "dependencies": {
+    "@forky/shared": "workspace:*",
+    "@forky/config": "workspace:*"
+  },
   "devDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
   }
 }
