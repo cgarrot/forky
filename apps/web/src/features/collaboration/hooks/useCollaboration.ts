@@ -27,7 +27,7 @@ type CollaborationHookReturn = {
   moveCursor: (x: number, y: number) => void;
   updateNode: (nodeId: string, data: unknown) => void;
   createNode: (params: { projectId: string; prompt: string; position: { x: number; y: number } }) => void;
-  handleNodeCreated: (data: { node: { id: string; prompt: string; position: { x: number; y: number }; status: string }; createdAt: string }) => void;
+
 };
 
 export const useCollaboration = ({
@@ -247,6 +247,5 @@ export const useCollaboration = ({
     moveCursor,
     updateNode,
     createNode,
-    handleNodeCreated,
   };
 };

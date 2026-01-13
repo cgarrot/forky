@@ -1,16 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger'
-import { IsNumber } from 'class-validator'
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber } from 'class-validator';
 
 export class ProjectViewportDto {
   @ApiProperty({ example: 0 })
   @IsNumber()
-  x!: number
+  x!: number;
 
   @ApiProperty({ example: 0 })
   @IsNumber()
-  y!: number
+  y!: number;
 
   @ApiProperty({ example: 1 })
   @IsNumber()
-  zoom!: number
+  zoom!: number;
 }

@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSettings, useStore } from '@/lib/store'
-import type { Node } from '@forky/shared'
+import { readOrchestrationMetadata, writeOrchestrationMetadata } from '@forky/shared'
+import type { Node, TodoItem } from '@forky/shared'
 
 type GenerationEvent = {
   chunk?: string
@@ -18,6 +19,30 @@ type GenerateTitleResponse = {
 
 type GenerateTitleSuccess = {
   title?: string
+}
+
+function parseTodoItems(markdown: string): TodoItem[] {
+  const lines = markdown.split('\n').map((l) => l.trim())
+  const items: TodoItem[] = []
+
+  for (const line of lines) {
+    const match = line.match(/^-\s*\[( |x|X)\]\s+(.+)$/)
+    if (!match) continue
+
+    const checked = match[1].toLowerCase() === 'x'
+    const title = match[2].trim()
+    if (!title) continue
+
+    items.push({
+      id: `todo_${Date.now()}_${items.length}`,
+      title,
+      status: checked ? 'done' : 'todo',
+    })
+
+    if (items.length >= 50) break
+  }
+
+  return items
 }
 
 async function startGeneration(params: { nodeId: string; model: string }) {
@@ -146,6 +171,40 @@ export function useGeneration(nodeId: string) {
               },
             },
           })
+
+            const latest = nodes.get(nodeId)
+            if (latest) {
+              const orchestration = readOrchestrationMetadata(latest.metadata)
+
+              if (orchestration.logicalRole === 'plan' && orchestration.plan && Array.isArray(orchestration.plan.versions)) {
+                const activeVersion = orchestration.plan.activeVersion
+                const createdAt = new Date().toISOString()
+
+                const versions = (() => {
+                  const existing = orchestration.plan?.versions ?? []
+                  const hasActive = existing.some((v) => v.version === activeVersion)
+
+                  const updated = existing.map((v) => (v.version === activeVersion ? { ...v, content: fullResponseRef.current } : v))
+
+                  return hasActive ? updated : [...updated, { version: activeVersion, content: fullResponseRef.current, createdAt }]
+                })()
+
+                const nextPlan = { ...orchestration.plan, versions, isStale: false }
+                updateNode(nodeId, {
+                  metadata: writeOrchestrationMetadata(latest.metadata, { logicalRole: 'plan', plan: nextPlan }),
+                })
+              }
+
+              if (orchestration.todo) {
+                const items = parseTodoItems(fullResponseRef.current)
+                const nextTodo = { ...orchestration.todo, items }
+
+                updateNode(nodeId, {
+                  metadata: writeOrchestrationMetadata(latest.metadata, { todo: nextTodo }),
+                })
+              }
+            }
+
 
           if (currentProjectName === 'Projet sans titre' && node.prompt) {
             const prompt = node.prompt
@@ -285,6 +344,39 @@ export function useNodeGenerationProvider() {
                 },
               },
             })
+
+            const latest = currentNodes.get(id)
+            if (latest) {
+              const orchestration = readOrchestrationMetadata(latest.metadata)
+
+              if (orchestration.logicalRole === 'plan' && orchestration.plan && Array.isArray(orchestration.plan.versions)) {
+                const activeVersion = orchestration.plan.activeVersion
+                const createdAt = new Date().toISOString()
+
+                const versions = (() => {
+                  const existing = orchestration.plan?.versions ?? []
+                  const hasActive = existing.some((v) => v.version === activeVersion)
+
+                  const updated = existing.map((v) => (v.version === activeVersion ? { ...v, content: full } : v))
+
+                  return hasActive ? updated : [...updated, { version: activeVersion, content: full, createdAt }]
+                })()
+
+                const nextPlan = { ...orchestration.plan, versions, isStale: false }
+                updateNode(id, {
+                  metadata: writeOrchestrationMetadata(latest.metadata, { logicalRole: 'plan', plan: nextPlan }),
+                })
+              }
+
+              if (orchestration.todo) {
+                const items = parseTodoItems(full)
+                const nextTodo = { ...orchestration.todo, items }
+
+                updateNode(id, {
+                  metadata: writeOrchestrationMetadata(latest.metadata, { todo: nextTodo }),
+                })
+              }
+            }
 
             if (currentProjectName === 'Projet sans titre' && node.prompt) {
               void (async () => {

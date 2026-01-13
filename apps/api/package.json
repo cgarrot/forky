@@ -6,6 +6,7 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "prebuild": "prisma generate",
     "build": "nest build",
     "predev": "nest build",
     "dev": "nest start --watch",

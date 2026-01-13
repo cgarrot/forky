@@ -2,11 +2,21 @@ import { enableMapSet } from 'immer';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { generateEdgeId, generateId, generateNodeId } from '@forky/shared';
+import {
+  computeHeuristicScore,
+  computeScope,
+  generateEdgeId,
+  generateId,
+  generateNodeId,
+  isPinned,
+  readOrchestrationMetadata,
+  writeOrchestrationMetadata,
+} from '@forky/shared';
 import type {
   Edge,
   Node,
   NodeStatus,
+  OrchestrationMetadata,
   QuickAction,
   Settings,
   UIState,
@@ -36,6 +46,34 @@ const defaultQuickActions: QuickAction[] = [
   },
 ];
 
+type BuildScopeDirection = 'parents' | 'children' | 'both';
+
+type BuildScopeNode = {
+  nodeId: string;
+  depth: number;
+  branches: string[];
+  score: number;
+  tier: 1 | 2 | 3;
+  reasons: string[];
+};
+
+type BuildSessionState = {
+  rootNodeId: string;
+  deliverable: string;
+  direction: BuildScopeDirection;
+  maxDepth: number;
+  scopeNodes: Map<string, BuildScopeNode>;
+  includedNodeIds: Set<string>;
+  excludedNodeIds: Set<string>;
+  pinnedNodeIds: Set<string>;
+  suggestedIncludedNodeIds: Set<string>;
+  suggestedExcludedNodeIds: Set<string>;
+  frozenSuggestions: boolean;
+  impactGlobalDetected: boolean;
+  impactedBranchIds: Set<string>;
+  targetPlanNodeId?: string;
+};
+
 interface StoreState {
   nodes: Map<string, Node>;
   edges: Map<string, Edge>;
@@ -47,12 +85,38 @@ interface StoreState {
   currentProjectId: string | null;
   currentProjectName: string;
   history: HistoryState;
+  buildSession: BuildSessionState | null;
+
+  startBuildSession: (rootNodeId: string) => void;
+  startBuildFromNode: (rootNodeId: string) => void;
+  startPlanScopeEdit: (planNodeId: string) => void;
+  applyBuildScopeToPlan: () => void;
+  endBuildSession: () => void;
+  setNodeMode: (nodeId: string, mode: 'explore' | 'build', source: 'auto' | 'manual') => void;
+  setBuildDeliverable: (deliverable: string) => void;
+  setBuildScopeConfig: (config: Partial<Pick<BuildSessionState, 'direction' | 'maxDepth'>>) => void;
+  recomputeBuildSuggestions: (params?: { branchId?: string | null }) => void;
+  toggleBuildInclude: (nodeId: string) => void;
+  toggleBuildExclude: (nodeId: string) => void;
+  toggleBuildPin: (nodeId: string) => void;
+  includeBuildBranch: (branchId: string) => void;
+  excludeBuildBranch: (branchId: string) => void;
+  pinBuildBranch: (branchId: string) => void;
+  unpinBuildBranch: (branchId: string) => void;
+  resetBuildToSuggested: () => void;
+
+  generatePlanFromBuildSession: () => string | null;
+  generateArtifactFromPlan: (planNodeId: string) => string | null;
+  generateTodoFromPlan: (planNodeId: string) => string | null;
+  refreshPlanVersion: (planNodeId: string) => void;
+  setActivePlanVersion: (planNodeId: string, version: number) => void;
 
   undo: () => void;
   redo: () => void;
 
   addNode: (position: { x: number; y: number }) => string;
   addNodeWithPrompt: (position: { x: number; y: number }, prompt: string) => string;
+  createChildNode: (parentId: string, prompt: string, orchestration?: Partial<OrchestrationMetadata>) => string | null;
   updateNode: (id: string, updates: Partial<Node>) => void;
   deleteNode: (id: string) => void;
   setNodes: (nodes: Map<string, Node>) => void;
@@ -176,6 +240,117 @@ const shouldPushHistory = (history: HistoryState, key: string) => {
   return !shouldSkip;
 };
 
+function detectModeFromPrompt(prompt: string): 'explore' | 'build' {
+  const text = prompt.trim().toLowerCase();
+  if (!text) return 'explore';
+
+  const buildSignals = [
+    'plan',
+    'build',
+    'crée',
+    'creer',
+    'créer',
+    'implémente',
+    'implement',
+    'implémenter',
+    'génère',
+    'genere',
+    'générer',
+    'roadmap',
+    'livrable',
+    'deliverable',
+    'mvp',
+    'spec',
+  ];
+
+  const exploreSignals = ['explique', 'explain', 'pourquoi', 'why', 'comment', 'how', 'compare', 'compar', 'résume', 'resume'];
+
+  const hasBuild = buildSignals.some((s) => text.includes(s));
+  const hasExplore = exploreSignals.some((s) => text.includes(s));
+
+  if (hasBuild && !hasExplore) return 'build';
+  if (hasExplore && !hasBuild) return 'explore';
+  if (text.includes('plan')) return 'build';
+  return 'explore';
+}
+
+function isCriticalPrompt(prompt: string): boolean {
+  const text = prompt.trim().toLowerCase();
+  if (!text) return false;
+
+  const criticalSignals = [
+    'contrainte',
+    'constraint',
+    'requirement',
+    'exigence',
+    'non-goal',
+    'non goal',
+    'risque',
+    'risk',
+    'decision',
+    'décision',
+    'must',
+    'critical',
+    'critique',
+  ];
+
+  return criticalSignals.some((s) => text.includes(s));
+}
+
+function computeBuildScopeSnapshot(params: {
+  rootNodeId: string;
+  nodes: Map<string, Node>;
+  direction: BuildScopeDirection;
+  maxDepth: number;
+}): {
+  scopeNodes: Map<string, BuildScopeNode>;
+  suggestedIncludedNodeIds: Set<string>;
+  suggestedExcludedNodeIds: Set<string>;
+  pinnedNodeIds: Set<string>;
+} {
+  const scopeEntries = computeScope(params.rootNodeId, params.nodes, { direction: params.direction, maxDepth: params.maxDepth });
+
+  const scopeNodes = new Map<string, BuildScopeNode>();
+  const suggestedIncludedNodeIds = new Set<string>();
+  const suggestedExcludedNodeIds = new Set<string>();
+  const pinnedNodeIds = new Set<string>();
+
+  for (const [nodeId, entry] of scopeEntries.entries()) {
+    const node = params.nodes.get(nodeId);
+    if (!node) continue;
+
+    const pinned = isPinned(node.metadata);
+    if (pinned) {
+      pinnedNodeIds.add(nodeId);
+    }
+
+    const scored = computeHeuristicScore(node, entry);
+
+    scopeNodes.set(nodeId, {
+      nodeId,
+      depth: entry.depth,
+      branches: entry.branches,
+      score: scored.score,
+      tier: scored.tier,
+      reasons: scored.reasons,
+    });
+
+    const includeByDefault = pinned || nodeId === params.rootNodeId || scored.tier !== 3;
+    if (includeByDefault) {
+      suggestedIncludedNodeIds.add(nodeId);
+    } else {
+      suggestedExcludedNodeIds.add(nodeId);
+    }
+  }
+
+  return {
+    scopeNodes,
+    suggestedIncludedNodeIds,
+    suggestedExcludedNodeIds,
+    pinnedNodeIds,
+  };
+}
+
 export const useStore = create<StoreState>()(
   persist(
     immer((set, get) => ({
@@ -197,6 +372,750 @@ export const useStore = create<StoreState>()(
       currentProjectId: null,
       currentProjectName: 'Projet sans titre',
       history: { past: [], future: [], lastKey: null, lastAt: 0 },
+      buildSession: null,
+
+      startBuildSession: (rootNodeId) => {
+        set((state) => {
+          const root = state.nodes.get(rootNodeId);
+          if (!root) return;
+
+          const direction: BuildScopeDirection = 'both';
+          const maxDepth = 3;
+
+          const snapshot = computeBuildScopeSnapshot({ rootNodeId, nodes: state.nodes, direction, maxDepth });
+
+          state.buildSession = {
+            rootNodeId,
+            deliverable: '',
+            direction,
+            maxDepth,
+            scopeNodes: snapshot.scopeNodes,
+            includedNodeIds: new Set(snapshot.suggestedIncludedNodeIds),
+            excludedNodeIds: new Set(snapshot.suggestedExcludedNodeIds),
+            pinnedNodeIds: new Set(snapshot.pinnedNodeIds),
+            suggestedIncludedNodeIds: new Set(snapshot.suggestedIncludedNodeIds),
+            suggestedExcludedNodeIds: new Set(snapshot.suggestedExcludedNodeIds),
+            frozenSuggestions: true,
+            impactGlobalDetected: false,
+            impactedBranchIds: new Set(),
+          };
+        });
+      },
+
+      startBuildFromNode: (rootNodeId) => {
+        set((state) => {
+          const root = state.nodes.get(rootNodeId);
+          if (!root) return;
+
+          root.metadata = writeOrchestrationMetadata(root.metadata, { mode: 'build', modeSource: 'manual' });
+          root.updatedAt = new Date();
+
+          const direction: BuildScopeDirection = 'both';
+          const maxDepth = 3;
+
+          const snapshot = computeBuildScopeSnapshot({ rootNodeId, nodes: state.nodes, direction, maxDepth });
+
+          state.buildSession = {
+            rootNodeId,
+            deliverable: '',
+            direction,
+            maxDepth,
+            scopeNodes: snapshot.scopeNodes,
+            includedNodeIds: new Set(snapshot.suggestedIncludedNodeIds),
+            excludedNodeIds: new Set(snapshot.suggestedExcludedNodeIds),
+            pinnedNodeIds: new Set(snapshot.pinnedNodeIds),
+            suggestedIncludedNodeIds: new Set(snapshot.suggestedIncludedNodeIds),
+            suggestedExcludedNodeIds: new Set(snapshot.suggestedExcludedNodeIds),
+            frozenSuggestions: true,
+            impactGlobalDetected: false,
+            impactedBranchIds: new Set(),
+          };
+        });
+      },
+
+      startPlanScopeEdit: (planNodeId) => {
+        set((state) => {
+          const planNode = state.nodes.get(planNodeId);
+          if (!planNode) return;
+
+          const orchestration = readOrchestrationMetadata(planNode.metadata);
+          const buildRootNodeId = orchestration.plan?.buildRootNodeId ?? planNodeId;
+
+          const direction: BuildScopeDirection = 'both';
+          const maxDepth = 3;
+
+          const snapshot = computeBuildScopeSnapshot({ rootNodeId: buildRootNodeId, nodes: state.nodes, direction, maxDepth });
+
+          const includedFromPlan = new Set<string>(planNode.parentIds);
+          includedFromPlan.add(buildRootNodeId);
+
+          const excludedFromPlan = new Set<string>();
+          for (const nodeId of snapshot.scopeNodes.keys()) {
+            if (!includedFromPlan.has(nodeId)) {
+              excludedFromPlan.add(nodeId);
+            }
+          }
+
+          state.buildSession = {
+            rootNodeId: buildRootNodeId,
+            deliverable: orchestration.plan?.deliverable ?? '',
+            direction,
+            maxDepth,
+            scopeNodes: snapshot.scopeNodes,
+            includedNodeIds: includedFromPlan,
+            excludedNodeIds: excludedFromPlan,
+            pinnedNodeIds: new Set(snapshot.pinnedNodeIds),
+            suggestedIncludedNodeIds: new Set(snapshot.suggestedIncludedNodeIds),
+            suggestedExcludedNodeIds: new Set(snapshot.suggestedExcludedNodeIds),
+            frozenSuggestions: true,
+            impactGlobalDetected: false,
+            impactedBranchIds: new Set(),
+            targetPlanNodeId: planNodeId,
+          };
+        });
+      },
+
+      applyBuildScopeToPlan: () => {
+        set((state) => {
+          const session = state.buildSession;
+          if (!session?.targetPlanNodeId) return;
+
+          const planNode = state.nodes.get(session.targetPlanNodeId);
+          if (!planNode) return;
+
+          const nextParentIds = Array.from(session.includedNodeIds).filter((id) => id !== planNode.id);
+
+          for (const oldParentId of [...planNode.parentIds]) {
+            planNode.parentIds = planNode.parentIds.filter((pid) => pid !== oldParentId);
+            const parent = state.nodes.get(oldParentId);
+            if (parent) {
+              parent.childrenIds = parent.childrenIds.filter((cid) => cid !== planNode.id);
+            }
+
+            for (const [edgeId, edge] of state.edges.entries()) {
+              if (edge.source === oldParentId && edge.target === planNode.id) {
+                state.edges.delete(edgeId);
+              }
+            }
+          }
+
+          const now = new Date();
+          for (const parentId of nextParentIds) {
+            const parent = state.nodes.get(parentId);
+            if (!parent) continue;
+
+            const edgeId = generateEdgeId();
+            state.edges.set(edgeId, { id: edgeId, source: parentId, target: planNode.id, createdAt: now });
+
+            if (!parent.childrenIds.includes(planNode.id)) {
+              parent.childrenIds.push(planNode.id);
+            }
+            if (!planNode.parentIds.includes(parentId)) {
+              planNode.parentIds.push(parentId);
+            }
+          }
+
+          planNode.updatedAt = now;
+          if (planNode.status !== 'loading') {
+            planNode.status = 'stale';
+          }
+
+          const orch = readOrchestrationMetadata(planNode.metadata);
+          if (orch.plan) {
+            planNode.metadata = writeOrchestrationMetadata(planNode.metadata, { plan: { ...orch.plan, isStale: true } });
+          }
+
+          state.buildSession = null;
+        });
+      },
+
+      setNodeMode: (nodeId, mode, source) => {
+        set((state) => {
+          const node = state.nodes.get(nodeId);
+          if (!node) return;
+          node.metadata = writeOrchestrationMetadata(node.metadata, { mode, modeSource: source });
+          node.updatedAt = new Date();
+        });
+      },
+
+      endBuildSession: () => {
+        set((state) => {
+          state.buildSession = null;
+        });
+      },
+
+      setBuildDeliverable: (deliverable) => {
+        set((state) => {
+          if (!state.buildSession) return;
+          state.buildSession.deliverable = deliverable;
+        });
+      },
+
+      setBuildScopeConfig: (config) => {
+        set((state) => {
+          if (!state.buildSession) return;
+          if (config.direction) {
+            state.buildSession.direction = config.direction;
+          }
+          if (typeof config.maxDepth === 'number' && config.maxDepth >= 0) {
+            state.buildSession.maxDepth = config.maxDepth;
+          }
+
+          const snapshot = computeBuildScopeSnapshot({
+            rootNodeId: state.buildSession.rootNodeId,
+            nodes: state.nodes,
+            direction: state.buildSession.direction,
+            maxDepth: state.buildSession.maxDepth,
+          });
+
+          state.buildSession.scopeNodes = snapshot.scopeNodes;
+          state.buildSession.suggestedIncludedNodeIds = snapshot.suggestedIncludedNodeIds;
+          state.buildSession.suggestedExcludedNodeIds = snapshot.suggestedExcludedNodeIds;
+          state.buildSession.pinnedNodeIds = snapshot.pinnedNodeIds;
+          state.buildSession.includedNodeIds = new Set(snapshot.suggestedIncludedNodeIds);
+          state.buildSession.excludedNodeIds = new Set(snapshot.suggestedExcludedNodeIds);
+          state.buildSession.frozenSuggestions = true;
+          state.buildSession.impactGlobalDetected = false;
+          state.buildSession.impactedBranchIds = new Set();
+        });
+      },
+
+      recomputeBuildSuggestions: (params) => {
+        set((state) => {
+          if (!state.buildSession) return;
+
+          const branchId = params?.branchId ?? null;
+
+          if (!branchId) {
+            const snapshot = computeBuildScopeSnapshot({
+              rootNodeId: state.buildSession.rootNodeId,
+              nodes: state.nodes,
+              direction: state.buildSession.direction,
+              maxDepth: state.buildSession.maxDepth,
+            });
+
+            state.buildSession.scopeNodes = snapshot.scopeNodes;
+            state.buildSession.suggestedIncludedNodeIds = snapshot.suggestedIncludedNodeIds;
+            state.buildSession.suggestedExcludedNodeIds = snapshot.suggestedExcludedNodeIds;
+            state.buildSession.pinnedNodeIds = snapshot.pinnedNodeIds;
+            state.buildSession.frozenSuggestions = true;
+            state.buildSession.impactGlobalDetected = false;
+            state.buildSession.impactedBranchIds = new Set();
+            return;
+          }
+
+          const nextScopeNodes = new Map(state.buildSession.scopeNodes);
+          const nextSuggestedIncluded = new Set(state.buildSession.suggestedIncludedNodeIds);
+          const nextSuggestedExcluded = new Set(state.buildSession.suggestedExcludedNodeIds);
+
+          const snapshot = computeBuildScopeSnapshot({
+            rootNodeId: state.buildSession.rootNodeId,
+            nodes: state.nodes,
+            direction: state.buildSession.direction,
+            maxDepth: state.buildSession.maxDepth,
+          });
+
+          for (const [nodeId, scoped] of snapshot.scopeNodes.entries()) {
+            if (!scoped.branches.includes(branchId)) continue;
+            nextScopeNodes.set(nodeId, scoped);
+
+            if (snapshot.suggestedIncludedNodeIds.has(nodeId)) {
+              nextSuggestedIncluded.add(nodeId);
+              nextSuggestedExcluded.delete(nodeId);
+            } else if (snapshot.suggestedExcludedNodeIds.has(nodeId)) {
+              nextSuggestedExcluded.add(nodeId);
+              nextSuggestedIncluded.delete(nodeId);
+            }
+          }
+
+          state.buildSession.scopeNodes = nextScopeNodes;
+          state.buildSession.suggestedIncludedNodeIds = nextSuggestedIncluded;
+          state.buildSession.suggestedExcludedNodeIds = nextSuggestedExcluded;
+          state.buildSession.frozenSuggestions = true;
+        });
+      },
+
+      toggleBuildInclude: (nodeId) => {
+        set((state) => {
+          if (!state.buildSession) return;
+          state.buildSession.excludedNodeIds.delete(nodeId);
+          if (state.buildSession.includedNodeIds.has(nodeId)) {
+            state.buildSession.includedNodeIds.delete(nodeId);
+            state.buildSession.excludedNodeIds.add(nodeId);
+          } else {
+            state.buildSession.includedNodeIds.add(nodeId);
+          }
+        });
+      },
+
+      toggleBuildExclude: (nodeId) => {
+        set((state) => {
+          if (!state.buildSession) return;
+          state.buildSession.includedNodeIds.delete(nodeId);
+          if (state.buildSession.excludedNodeIds.has(nodeId)) {
+            state.buildSession.excludedNodeIds.delete(nodeId);
+            state.buildSession.includedNodeIds.add(nodeId);
+          } else {
+            state.buildSession.excludedNodeIds.add(nodeId);
+          }
+        });
+      },
+
+      toggleBuildPin: (nodeId) => {
+        set((state) => {
+          const node = state.nodes.get(nodeId);
+          if (!node) return;
+
+          const pinned = isPinned(node.metadata);
+          const nextPinned = !pinned;
+
+          node.metadata = writeOrchestrationMetadata(node.metadata, { pinned: nextPinned });
+          node.updatedAt = new Date();
+
+          if (state.buildSession) {
+            if (nextPinned) {
+              state.buildSession.pinnedNodeIds.add(nodeId);
+              state.buildSession.includedNodeIds.add(nodeId);
+              state.buildSession.excludedNodeIds.delete(nodeId);
+            } else {
+              state.buildSession.pinnedNodeIds.delete(nodeId);
+            }
+          }
+        });
+      },
+
+      includeBuildBranch: (branchId) => {
+        set((state) => {
+          const session = state.buildSession;
+          if (!session) return;
+
+          for (const [nodeId, scoped] of session.scopeNodes.entries()) {
+            if (!scoped.branches.includes(branchId)) continue;
+            session.includedNodeIds.add(nodeId);
+            session.excludedNodeIds.delete(nodeId);
+          }
+        });
+      },
+
+      excludeBuildBranch: (branchId) => {
+        set((state) => {
+          const session = state.buildSession;
+          if (!session) return;
+
+          for (const [nodeId, scoped] of session.scopeNodes.entries()) {
+            if (!scoped.branches.includes(branchId)) continue;
+            if (session.pinnedNodeIds.has(nodeId)) continue;
+            session.excludedNodeIds.add(nodeId);
+            session.includedNodeIds.delete(nodeId);
+          }
+        });
+      },
+
+      pinBuildBranch: (branchId) => {
+        set((state) => {
+          const session = state.buildSession;
+          if (!session) return;
+
+          for (const [nodeId, scoped] of session.scopeNodes.entries()) {
+            if (!scoped.branches.includes(branchId)) continue;
+
+            const node = state.nodes.get(nodeId);
+            if (!node) continue;
+
+            node.metadata = writeOrchestrationMetadata(node.metadata, { pinned: true });
+            node.updatedAt = new Date();
+
+            session.pinnedNodeIds.add(nodeId);
+            session.includedNodeIds.add(nodeId);
+            session.excludedNodeIds.delete(nodeId);
+          }
+        });
+      },
+
+      unpinBuildBranch: (branchId) => {
+        set((state) => {
+          const session = state.buildSession;
+          if (!session) return;
+
+          for (const [nodeId, scoped] of session.scopeNodes.entries()) {
+            if (!scoped.branches.includes(branchId)) continue;
+
+            const node = state.nodes.get(nodeId);
+            if (!node) continue;
+
+            node.metadata = writeOrchestrationMetadata(node.metadata, { pinned: false });
+            node.updatedAt = new Date();
+
+            session.pinnedNodeIds.delete(nodeId);
+          }
+        });
+      },
+
+      resetBuildToSuggested: () => {
+        set((state) => {
+          if (!state.buildSession) return;
+          state.buildSession.includedNodeIds = new Set(state.buildSession.suggestedIncludedNodeIds);
+          state.buildSession.excludedNodeIds = new Set(state.buildSession.suggestedExcludedNodeIds);
+        });
+      },
+
+      generatePlanFromBuildSession: () => {
+        const now = new Date();
+        let createdPlanId: string | null = null;
+
+        set((state) => {
+          const session = state.buildSession;
+          if (!session) return;
+          if (!session.deliverable.trim()) return;
+
+          const root = state.nodes.get(session.rootNodeId);
+          if (!root) return;
+
+          const included = Array.from(session.includedNodeIds);
+          if (!included.includes(session.rootNodeId)) {
+            included.push(session.rootNodeId);
+          }
+
+          included.sort();
+          const scopeHash = included.join('|');
+
+          const planNodeId = generateNodeId();
+          createdPlanId = planNodeId;
+
+          const version = 1;
+          const createdAt = now.toISOString();
+
+          const prompt = [
+            `Objectif: produire un plan de projet excellent pour: ${session.deliverable}`,
+            '',
+            'Contraintes:',
+            '- Réponds en Markdown structuré (titres, listes, checklists).',
+            '- Commence par un résumé ultra-concis.',
+            '- Inclus: scope, milestones, risques, plan de livraison, critères de succès.',
+            '- Utilise le contexte fourni par les nodes parents.',
+          ].join('\n');
+
+          const metadata = writeOrchestrationMetadata(undefined, {
+            logicalRole: 'plan',
+            mode: 'build',
+            modeSource: 'manual',
+            plan: {
+              versions: [{ version, content: '', createdAt, scopeHash }],
+              activeVersion: version,
+              isStale: false,
+              deliverable: session.deliverable,
+              scopeHash,
+              buildRootNodeId: session.rootNodeId,
+            },
+          });
+
+          state.nodes.set(planNodeId, {
+            id: planNodeId,
+            prompt,
+            response: '',
+            status: 'idle',
+            position: { x: root.position.x + 320, y: root.position.y + 40 },
+            parentIds: [],
+            childrenIds: [],
+            createdAt: now,
+            updatedAt: now,
+            metadata,
+          });
+
+          const addEdgeInternal = (sourceId: string, targetId: string) => {
+            const already = Array.from(state.edges.values()).some((edge) => edge.source === sourceId && edge.target === targetId);
+            if (already) return;
+
+            const edgeId = generateEdgeId();
+            state.edges.set(edgeId, {
+              id: edgeId,
+              source: sourceId,
+              target: targetId,
+              createdAt: now,
+            });
+
+            const sourceNode = state.nodes.get(sourceId);
+            const targetNode = state.nodes.get(targetId);
+            if (sourceNode && targetNode) {
+              if (!sourceNode.childrenIds.includes(targetId)) {
+                sourceNode.childrenIds.push(targetId);
+              }
+              if (!targetNode.parentIds.includes(sourceId)) {
+                targetNode.parentIds.push(sourceId);
+              }
+            }
+          };
+
+          for (const nodeId of included) {
+            addEdgeInternal(nodeId, planNodeId);
+          }
+
+          state.buildSession = null;
+        });
+
+        if (createdPlanId) {
+          setTimeout(() => {
+            const event = new CustomEvent('node:generate', { detail: { nodeId: createdPlanId } });
+            window.dispatchEvent(event);
+          }, 50);
+        }
+
+        return createdPlanId;
+      },
+
+      generateArtifactFromPlan: (planNodeId) => {
+        const now = new Date();
+        let createdArtifactId: string | null = null;
+
+        set((state) => {
+          const planNode = state.nodes.get(planNodeId);
+          if (!planNode) return;
+
+          const orchestration = readOrchestrationMetadata(planNode.metadata);
+          const deliverable = orchestration.plan?.deliverable ?? 'Artifact';
+
+          const parentIds = [...planNode.parentIds];
+          parentIds.sort();
+          const scopeHash = parentIds.join('|');
+
+          const artifactNodeId = generateNodeId();
+          createdArtifactId = artifactNodeId;
+
+          const prompt = [
+            `Objectif: produire un livrable (artifact) à partir du plan et du contexte.`,
+            '',
+            `Livrable: ${deliverable}`,
+            '',
+            'Contraintes:',
+            '- Réponds en Markdown structuré et directement utilisable.',
+            '- Respecte strictement le plan actif.',
+            '- Inclue les sections nécessaires (ex: intro, étapes, checklists, annexes).',
+          ].join('\n');
+
+          const metadata = writeOrchestrationMetadata(undefined, {
+            logicalRole: 'artifact',
+            mode: 'build',
+            modeSource: 'manual',
+            artifact: { isFinal: false },
+          });
+
+          state.nodes.set(artifactNodeId, {
+            id: artifactNodeId,
+            prompt,
+            response: '',
+            status: 'idle',
+            position: { x: planNode.position.x + 320, y: planNode.position.y + 60 },
+            parentIds: [],
+            childrenIds: [],
+            createdAt: now,
+            updatedAt: now,
+            metadata,
+          });
+
+          const addEdgeInternal = (sourceId: string, targetId: string) => {
+            const already = Array.from(state.edges.values()).some((edge) => edge.source === sourceId && edge.target === targetId);
+            if (already) return;
+
+            const edgeId = generateEdgeId();
+            state.edges.set(edgeId, {
+              id: edgeId,
+              source: sourceId,
+              target: targetId,
+              createdAt: now,
+            });
+
+            const sourceNode = state.nodes.get(sourceId);
+            const targetNode = state.nodes.get(targetId);
+            if (sourceNode && targetNode) {
+              if (!sourceNode.childrenIds.includes(targetId)) {
+                sourceNode.childrenIds.push(targetId);
+              }
+              if (!targetNode.parentIds.includes(sourceId)) {
+                targetNode.parentIds.push(sourceId);
+              }
+            }
+          };
+
+          addEdgeInternal(planNodeId, artifactNodeId);
+
+          for (const pid of parentIds) {
+            addEdgeInternal(pid, artifactNodeId);
+          }
+
+          const created = state.nodes.get(artifactNodeId);
+          if (created) {
+            created.metadata = writeOrchestrationMetadata(created.metadata, {
+              artifact: { isFinal: false },
+              scoreExplanation: { reason: `Derived from plan scope: ${scopeHash.slice(0, 40)}` },
+            });
+          }
+        });
+
+        if (createdArtifactId) {
+          setTimeout(() => {
+            const event = new CustomEvent('node:generate', { detail: { nodeId: createdArtifactId } });
+            window.dispatchEvent(event);
+          }, 50);
+        }
+
+        return createdArtifactId;
+      },
+
+      generateTodoFromPlan: (planNodeId) => {
+        const now = new Date();
+        let createdTodoId: string | null = null;
+
+        set((state) => {
+          const planNode = state.nodes.get(planNodeId);
+          if (!planNode) return;
+
+          const orchestration = readOrchestrationMetadata(planNode.metadata);
+          const deliverable = orchestration.plan?.deliverable ?? 'Todo';
+
+          const todoNodeId = generateNodeId();
+          createdTodoId = todoNodeId;
+
+          const prompt = [
+            `Objectif: transformer le plan en une liste de tâches actionnables (todo).`,
+            '',
+            `Contexte: ${deliverable}`,
+            '',
+            'Contraintes:',
+            '- Retourne une liste structurée en Markdown (checklist) avec 10-25 items.',
+            '- Grouper par sections si nécessaire.',
+            '- Chaque item doit être actionnable et concret.',
+          ].join('\n');
+
+          const metadata = writeOrchestrationMetadata(undefined, {
+            logicalRole: 'artifact',
+            mode: 'build',
+            modeSource: 'manual',
+            todo: { items: [], derivedFromPlanNodeId: planNodeId },
+          });
+
+          state.nodes.set(todoNodeId, {
+            id: todoNodeId,
+            prompt,
+            response: '',
+            status: 'idle',
+            position: { x: planNode.position.x + 320, y: planNode.position.y + 220 },
+            parentIds: [],
+            childrenIds: [],
+            createdAt: now,
+            updatedAt: now,
+            metadata,
+          });
+
+          const addEdgeInternal = (sourceId: string, targetId: string) => {
+            const already = Array.from(state.edges.values()).some((edge) => edge.source === sourceId && edge.target === targetId);
+            if (already) return;
+
+            const edgeId = generateEdgeId();
+            state.edges.set(edgeId, { id: edgeId, source: sourceId, target: targetId, createdAt: now });
+
+            const sourceNode = state.nodes.get(sourceId);
+            const targetNode = state.nodes.get(targetId);
+            if (sourceNode && targetNode) {
+              if (!sourceNode.childrenIds.includes(targetId)) {
+                sourceNode.childrenIds.push(targetId);
+              }
+              if (!targetNode.parentIds.includes(sourceId)) {
+                targetNode.parentIds.push(sourceId);
+              }
+            }
+          };
+
+          addEdgeInternal(planNodeId, todoNodeId);
+          for (const pid of planNode.parentIds) {
+            addEdgeInternal(pid, todoNodeId);
+          }
+        });
+
+        if (createdTodoId) {
+          setTimeout(() => {
+            const event = new CustomEvent('node:generate', { detail: { nodeId: createdTodoId } });
+            window.dispatchEvent(event);
+          }, 50);
+        }
+
+        return createdTodoId;
+      },
+
+      refreshPlanVersion: (planNodeId) => {
+        const now = new Date();
+
+        set((state) => {
+          const node = state.nodes.get(planNodeId);
+          if (!node) return;
+
+          const orchestration = readOrchestrationMetadata(node.metadata);
+          const plan = orchestration.plan;
+          if (!plan || !Array.isArray(plan.versions)) return;
+
+          const versions = plan.versions;
+          const maxVersion = versions.reduce((acc, v) => (typeof v.version === 'number' && v.version > acc ? v.version : acc), 0);
+          const nextVersion = maxVersion + 1;
+
+          const parentIds = [...node.parentIds].sort();
+          const scopeHash = parentIds.join('|');
+
+          const deliverable = plan.deliverable ?? 'Plan';
+
+          const prompt = [
+            `Objectif: rafraîchir le plan de projet pour: ${deliverable}`,
+            '',
+            'Contraintes:',
+            '- Réponds en Markdown structuré (titres, listes, checklists).',
+            '- Mets à jour le plan en tenant compte des changements de contexte.',
+            '- Utilise le contexte fourni par les nodes parents.',
+          ].join('\n');
+
+          const createdAt = now.toISOString();
+
+          const nextPlan = {
+            ...plan,
+            versions: [...versions, { version: nextVersion, content: '', createdAt, scopeHash }],
+            activeVersion: nextVersion,
+            isStale: false,
+            scopeHash,
+          };
+
+          node.prompt = prompt;
+          node.response = '';
+          node.status = 'idle';
+          node.updatedAt = now;
+          node.metadata = writeOrchestrationMetadata(node.metadata, { logicalRole: 'plan', plan: nextPlan });
+        });
+
+        setTimeout(() => {
+          const event = new CustomEvent('node:generate', { detail: { nodeId: planNodeId } });
+          window.dispatchEvent(event);
+        }, 50);
+      },
+
+      setActivePlanVersion: (planNodeId, version) => {
+        set((state) => {
+          const node = state.nodes.get(planNodeId);
+          if (!node) return;
+
+          const orchestration = readOrchestrationMetadata(node.metadata);
+          const plan = orchestration.plan;
+          if (!plan || !Array.isArray(plan.versions)) return;
+
+          const selected = plan.versions.find((v) => v.version === version);
+          if (!selected) return;
+
+          const nextPlan = {
+            ...plan,
+            activeVersion: version,
+          };
+
+          node.response = selected.content;
+          node.status = 'idle';
+          node.updatedAt = new Date();
+          node.metadata = writeOrchestrationMetadata(node.metadata, { logicalRole: 'plan', plan: nextPlan });
+        });
+      },
 
       undo: () => {
         const snapshot = createSnapshot(get());
@@ -280,6 +1199,27 @@ export const useStore = create<StoreState>()(
         return id;
       },
 
+      createChildNode: (parentId, prompt, orchestration) => {
+        const parent = get().nodes.get(parentId);
+        if (!parent) return null;
+
+        const childId = get().addNodeWithPrompt({ x: parent.position.x + 60, y: parent.position.y + 320 }, prompt);
+        const edgeId = get().addEdge(parentId, childId);
+        if (!edgeId) {
+          return childId;
+        }
+
+        if (orchestration) {
+          const child = get().nodes.get(childId);
+          if (child) {
+            const metadata = writeOrchestrationMetadata(child.metadata, orchestration);
+            get().updateNode(childId, { metadata });
+          }
+        }
+
+        return childId;
+      },
+
       updateNode: (id, updates) => {
         set((state) => {
           const node = state.nodes.get(id);
@@ -331,9 +1271,18 @@ export const useStore = create<StoreState>()(
       setNodeStatus: (id, status) => {
         set((state) => {
           const node = state.nodes.get(id);
-          if (node) {
-            node.status = status;
-            node.updatedAt = new Date();
+          if (!node) return;
+
+          node.status = status;
+          node.updatedAt = new Date();
+
+          if (status === 'stale') {
+            const orchestration = readOrchestrationMetadata(node.metadata);
+            if (orchestration.logicalRole === 'plan' && orchestration.plan) {
+              node.metadata = writeOrchestrationMetadata(node.metadata, {
+                plan: { ...orchestration.plan, isStale: true },
+              });
+            }
           }
         });
       },
@@ -358,9 +1307,16 @@ export const useStore = create<StoreState>()(
            }
 
 
-          const previousPrompt = node.prompt;
-          node.prompt = prompt;
-          node.updatedAt = new Date();
+           const previousPrompt = node.prompt;
+           node.prompt = prompt;
+           node.updatedAt = new Date();
+
+           const orchestration = readOrchestrationMetadata(node.metadata);
+           if (orchestration.modeSource !== 'manual') {
+             const mode = detectModeFromPrompt(prompt);
+             node.metadata = writeOrchestrationMetadata(node.metadata, { mode, modeSource: 'auto' });
+           }
+
 
           if (previousPrompt !== prompt) {
             const queue = [...node.childrenIds];
@@ -373,13 +1329,22 @@ export const useStore = create<StoreState>()(
               visited.add(currentId);
 
               const child = state.nodes.get(currentId);
-              if (child) {
-                if (child.status !== 'loading') {
-                  child.status = 'stale';
-                }
-                child.updatedAt = new Date();
-                queue.push(...child.childrenIds);
-              }
+               if (child) {
+                 if (child.status !== 'loading') {
+                   child.status = 'stale';
+                 }
+                 child.updatedAt = new Date();
+
+                 const orchestration = readOrchestrationMetadata(child.metadata);
+                 if (orchestration.logicalRole === 'plan' && orchestration.plan) {
+                   child.metadata = writeOrchestrationMetadata(child.metadata, {
+                     plan: { ...orchestration.plan, isStale: true },
+                   });
+                 }
+
+                 queue.push(...child.childrenIds);
+               }
+
             }
           }
         });
@@ -444,6 +1409,60 @@ export const useStore = create<StoreState>()(
             }
             if (!targetNode.parentIds.includes(sourceId)) {
               targetNode.parentIds.push(sourceId);
+            }
+          }
+
+          const session = state.buildSession;
+          if (session && sourceNode && targetNode) {
+            const rootId = session.rootNodeId;
+            const branchIds = sourceId === rootId ? [targetId] : (session.scopeNodes.get(sourceId)?.branches ?? []);
+
+            if (branchIds.length > 0) {
+              const snapshotNow = computeBuildScopeSnapshot({
+                rootNodeId: rootId,
+                nodes: state.nodes,
+                direction: session.direction,
+                maxDepth: session.maxDepth,
+              });
+
+              for (const branchId of branchIds) {
+                for (const [nodeId, scoped] of snapshotNow.scopeNodes.entries()) {
+                  if (!scoped.branches.includes(branchId)) continue;
+
+                  session.scopeNodes.set(nodeId, scoped);
+
+                  if (snapshotNow.suggestedIncludedNodeIds.has(nodeId)) {
+                    session.suggestedIncludedNodeIds.add(nodeId);
+                    session.suggestedExcludedNodeIds.delete(nodeId);
+                  } else if (snapshotNow.suggestedExcludedNodeIds.has(nodeId)) {
+                    session.suggestedExcludedNodeIds.add(nodeId);
+                    session.suggestedIncludedNodeIds.delete(nodeId);
+                  }
+
+                  if (!session.includedNodeIds.has(nodeId) && !session.excludedNodeIds.has(nodeId)) {
+                    if (snapshotNow.suggestedIncludedNodeIds.has(nodeId)) {
+                      session.includedNodeIds.add(nodeId);
+                    } else {
+                      session.excludedNodeIds.add(nodeId);
+                    }
+                  }
+                }
+              }
+
+              session.pinnedNodeIds = snapshotNow.pinnedNodeIds;
+              session.frozenSuggestions = true;
+
+              const pivotDepth = session.scopeNodes.get(sourceId)?.depth;
+              const closeToPivot = sourceId === rootId || (typeof pivotDepth === 'number' && pivotDepth <= 1);
+              const multiParent = targetNode.parentIds.length > 1;
+              const critical = isCriticalPrompt(targetNode.prompt);
+
+              if (closeToPivot || multiParent || critical) {
+                session.impactGlobalDetected = true;
+                for (const branchId of branchIds) {
+                  session.impactedBranchIds.add(branchId);
+                }
+              }
             }
           }
         });
@@ -604,8 +1623,10 @@ export const useStore = create<StoreState>()(
            state.edges = arrayToMap(edges);
            state.settings = settings;
            state.quickActions = quickActions;
-           state.selectedNodeIds.clear();
-           state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
+            state.selectedNodeIds.clear();
+            state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
+            state.buildSession = null;
+
          });
        },
 
@@ -615,8 +1636,10 @@ export const useStore = create<StoreState>()(
            state.edges.clear();
            state.selectedNodeIds.clear();
            state.currentProjectId = null;
-           state.currentProjectName = 'Projet sans titre';
-           state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
+            state.currentProjectName = 'Projet sans titre';
+            state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
+            state.buildSession = null;
+
          });
        },
     })),
@@ -679,6 +1702,37 @@ export const useSettings = () => useStore((state) => state.settings);
 export const useQuickActions = () => useStore((state) => state.quickActions);
 export const useUI = () => useStore((state) => state.ui);
 export const useViewport = () => useStore((state) => state.viewport);
+export const useBuildSession = () => useStore((state) => state.buildSession);
+
+export const useBuildActions = () =>
+  useStore((state) => ({
+    startBuildSession: state.startBuildSession,
+    startBuildFromNode: state.startBuildFromNode,
+    startPlanScopeEdit: state.startPlanScopeEdit,
+    applyBuildScopeToPlan: state.applyBuildScopeToPlan,
+    endBuildSession: state.endBuildSession,
+    setNodeMode: state.setNodeMode,
+    setBuildDeliverable: state.setBuildDeliverable,
+    setBuildScopeConfig: state.setBuildScopeConfig,
+    recomputeBuildSuggestions: state.recomputeBuildSuggestions,
+    toggleBuildInclude: state.toggleBuildInclude,
+    toggleBuildExclude: state.toggleBuildExclude,
+    toggleBuildPin: state.toggleBuildPin,
+    includeBuildBranch: state.includeBuildBranch,
+    excludeBuildBranch: state.excludeBuildBranch,
+    pinBuildBranch: state.pinBuildBranch,
+    unpinBuildBranch: state.unpinBuildBranch,
+    resetBuildToSuggested: state.resetBuildToSuggested,
+    generatePlanFromBuildSession: state.generatePlanFromBuildSession,
+  }));
+
+export const usePlanActions = () =>
+  useStore((state) => ({
+    refreshPlanVersion: state.refreshPlanVersion,
+    setActivePlanVersion: state.setActivePlanVersion,
+    generateArtifactFromPlan: state.generateArtifactFromPlan,
+    generateTodoFromPlan: state.generateTodoFromPlan,
+  }));
 
 export const useNodeActions = () =>
   useStore((state) => ({

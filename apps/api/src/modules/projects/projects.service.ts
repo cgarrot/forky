@@ -1,26 +1,37 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma, ProjectRole } from '@prisma/client'
-import { randomBytes } from 'node:crypto'
-import { PrismaService } from '../../common/database/prisma.service'
-import type { CreateProjectDto } from './dto/create-project.dto'
-import type { UpdateProjectDto } from './dto/update-project.dto'
-import type { Project, ProjectViewport } from './types/project.type'
-
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma, ProjectRole } from '@prisma/client';
+import { randomBytes } from 'node:crypto';
+import { PrismaService } from '../../common/database/prisma.service';
+import type { CreateProjectDto } from './dto/create-project.dto';
+import type { UpdateProjectDto } from './dto/update-project.dto';
+import type { Project, ProjectViewport } from './types/project.type';
 
 @Injectable()
 export class ProjectsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list(params: {
-    userId: string
-    page: number
-    limit: number
-    search?: string
-    sort?: keyof Pick<Project, 'createdAt' | 'updatedAt' | 'name'>
-    order?: 'asc' | 'desc'
+    userId: string;
+    page: number;
+    limit: number;
+    search?: string;
+    sort?: keyof Pick<Project, 'createdAt' | 'updatedAt' | 'name'>;
+    order?: 'asc' | 'desc';
   }) {
-    const { userId, page, limit, search, sort = 'createdAt', order = 'desc' } = params
-    const skip = (page - 1) * limit
+    const {
+      userId,
+      page,
+      limit,
+      search,
+      sort = 'createdAt',
+      order = 'desc',
+    } = params;
+    const skip = (page - 1) * limit;
 
     const where: Prisma.ProjectWhereInput = {
       deletedAt: null,
@@ -33,7 +44,7 @@ export class ProjectsService {
             },
           }
         : {}),
-    }
+    };
 
     const [total, items] = await Promise.all([
       this.prisma.project.count({ where }),
@@ -48,9 +59,9 @@ export class ProjectsService {
           owner: true,
         },
       }),
-    ])
+    ]);
 
-    const totalPages = Math.max(1, Math.ceil(total / limit))
+    const totalPages = Math.max(1, Math.ceil(total / limit));
 
     return {
       success: true,
@@ -61,44 +72,46 @@ export class ProjectsService {
         total,
         totalPages,
       },
-    }
+    };
   }
 
-  private toQuickActionsJson(value: CreateProjectDto['quickActions'] | UpdateProjectDto['quickActions']) {
-    if (!value) return Prisma.JsonNull
+  private toQuickActionsJson(value: CreateProjectDto['quickActions']) {
+    if (!value) return Prisma.JsonNull;
 
     return value.map((item) => ({
       id: item.id,
       label: item.label,
       instruction: item.instruction,
       order: item.order,
-    })) as unknown as Prisma.InputJsonValue
+    })) as unknown as Prisma.InputJsonValue;
   }
 
   async create(ownerId: string, input: CreateProjectDto) {
-    const defaultViewport: ProjectViewport = { x: 0, y: 0, zoom: 1 }
+    const defaultViewport: ProjectViewport = { x: 0, y: 0, zoom: 1 };
 
     const owner = await this.prisma.user.findFirst({
       where: { id: ownerId, deletedAt: null },
       select: { id: true, isGuest: true },
-    })
+    });
 
     if (!owner) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException('User not found');
     }
 
     if (owner.isGuest) {
-      const existing = await this.prisma.project.count({ where: { ownerId, deletedAt: null } })
+      const existing = await this.prisma.project.count({
+        where: { ownerId, deletedAt: null },
+      });
       if (existing >= 1) {
         throw new ConflictException({
           code: 'GUEST_PROJECT_LIMIT',
           message: "Un invité ne peut créer qu'un seul projet",
-        })
+        });
       }
     }
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      const shareToken = await this.generateShareToken()
+      const shareToken = this.generateShareToken();
 
       try {
         const project = await this.prisma.project.create({
@@ -109,7 +122,11 @@ export class ProjectsService {
             isPublic: input.isPublic ?? false,
             shareToken,
             viewport: input.viewport
-              ? { x: input.viewport.x, y: input.viewport.y, zoom: input.viewport.zoom }
+              ? {
+                  x: input.viewport.x,
+                  y: input.viewport.y,
+                  zoom: input.viewport.zoom,
+                }
               : defaultViewport,
             quickActions: this.toQuickActionsJson(input.quickActions),
             owner: {
@@ -127,22 +144,25 @@ export class ProjectsService {
           include: {
             owner: true,
           },
-        })
+        });
 
         return {
           success: true,
           data: this.mapToEntity(project),
           message: 'Projet créé avec succès',
-        }
+        };
       } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-          continue
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          continue;
         }
-        throw error
+        throw error;
       }
     }
 
-    throw new ConflictException('Unable to generate share token')
+    throw new ConflictException('Unable to generate share token');
   }
 
   async getById(id: string) {
@@ -159,15 +179,21 @@ export class ProjectsService {
           },
         },
       },
-    })
+    });
 
     if (!project) {
-      throw new NotFoundException('Project not found')
+      throw new NotFoundException('Project not found');
     }
 
-    const shareToken = await this.ensureShareToken(project.id, project.shareToken)
+    const shareToken = await this.ensureShareToken(
+      project.id,
+      project.shareToken,
+    );
 
-    return { success: true, data: this.mapToDetailEntity({ ...project, shareToken }) }
+    return {
+      success: true,
+      data: this.mapToDetailEntity({ ...project, shareToken }),
+    };
   }
 
   async update(id: string, input: UpdateProjectDto) {
@@ -176,13 +202,21 @@ export class ProjectsService {
         where: { id },
         data: {
           ...(input.name !== undefined ? { name: input.name } : {}),
-          ...(input.description !== undefined ? { description: input.description } : {}),
-          ...(input.systemPrompt !== undefined ? { systemPrompt: input.systemPrompt } : {}),
+          ...(input.description !== undefined
+            ? { description: input.description }
+            : {}),
+          ...(input.systemPrompt !== undefined
+            ? { systemPrompt: input.systemPrompt }
+            : {}),
           ...(input.isPublic !== undefined ? { isPublic: input.isPublic } : {}),
           ...(input.viewport !== undefined
             ? {
                 viewport: input.viewport
-                  ? { x: input.viewport.x, y: input.viewport.y, zoom: input.viewport.zoom }
+                  ? {
+                      x: input.viewport.x,
+                      y: input.viewport.y,
+                      zoom: input.viewport.zoom,
+                    }
                   : Prisma.JsonNull,
               }
             : {}),
@@ -193,18 +227,21 @@ export class ProjectsService {
         include: {
           owner: true,
         },
-      })
+      });
 
       return {
         success: true,
         data: this.mapToEntity(updated),
         message: 'Projet mis à jour',
-      }
+      };
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException('Project not found')
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Project not found');
       }
-      throw error
+      throw error;
     }
   }
 
@@ -213,14 +250,17 @@ export class ProjectsService {
       await this.prisma.project.update({
         where: { id },
         data: { deletedAt: new Date() },
-      })
+      });
 
-      return { success: true, message: 'Projet supprimé' }
+      return { success: true, message: 'Projet supprimé' };
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException('Project not found')
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Project not found');
       }
-      throw error
+      throw error;
     }
   }
 
@@ -228,58 +268,71 @@ export class ProjectsService {
     const project = await this.prisma.project.findFirst({
       where: { id: projectId, deletedAt: null },
       select: { ownerId: true },
-    })
+    });
 
     if (!project) {
-      throw new NotFoundException('Project not found')
+      throw new NotFoundException('Project not found');
     }
 
     if (project.ownerId === userId) {
-      return
+      return;
     }
 
     const member = await this.prisma.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId } },
       select: { id: true },
-    })
+    });
 
     if (!member) {
-      throw new ForbiddenException('Access denied')
+      throw new ForbiddenException('Access denied');
     }
   }
 
   async listMembers(projectId: string) {
-    const project = await this.prisma.project.findFirst({ where: { id: projectId, deletedAt: null }, select: { id: true } })
+    const project = await this.prisma.project.findFirst({
+      where: { id: projectId, deletedAt: null },
+      select: { id: true },
+    });
     if (!project) {
-      throw new NotFoundException('Project not found')
+      throw new NotFoundException('Project not found');
     }
 
     const members = await this.prisma.projectMember.findMany({
       where: { projectId },
       include: { user: true },
       orderBy: { joinedAt: 'asc' },
-    })
+    });
 
     return {
       success: true,
       data: members.map((member) => this.mapToMemberEntity(member)),
-    }
+    };
   }
 
-  async inviteMember(params: { projectId: string; actorId: string; email: string; role?: ProjectRole }) {
-    const { canManage } = await this.getProjectAccess(params.projectId, params.actorId)
+  async inviteMember(params: {
+    projectId: string;
+    actorId: string;
+    email: string;
+    role?: ProjectRole;
+  }) {
+    const { canManage } = await this.getProjectAccess(
+      params.projectId,
+      params.actorId,
+    );
     if (!canManage) {
-      throw new ForbiddenException('Access denied')
+      throw new ForbiddenException('Access denied');
     }
 
-    const role: ProjectRole = params.role ?? 'MEMBER'
+    const role: ProjectRole = params.role ?? 'MEMBER';
     if (role === 'OWNER') {
-      throw new ConflictException('Invalid role')
+      throw new ConflictException('Invalid role');
     }
 
-    const user = await this.prisma.user.findFirst({ where: { email: params.email, deletedAt: null } })
+    const user = await this.prisma.user.findFirst({
+      where: { email: params.email, deletedAt: null },
+    });
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException('User not found');
     }
 
     try {
@@ -291,81 +344,105 @@ export class ProjectsService {
             role,
           },
           include: { user: true },
-        })
+        });
 
-        await tx.project.update({ where: { id: params.projectId }, data: { memberCount: { increment: 1 } } })
+        await tx.project.update({
+          where: { id: params.projectId },
+          data: { memberCount: { increment: 1 } },
+        });
 
-        return member
-      })
+        return member;
+      });
 
       return {
         success: true,
         data: this.mapToMemberEntity(created),
         message: 'Utilisateur invité avec succès',
-      }
+      };
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new ConflictException('User already member')
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('User already member');
       }
-      throw error
+      throw error;
     }
   }
 
-  async removeMember(params: { projectId: string; actorId: string; memberId: string }) {
-    const { project, canManage } = await this.getProjectAccess(params.projectId, params.actorId)
+  async removeMember(params: {
+    projectId: string;
+    actorId: string;
+    memberId: string;
+  }) {
+    const { project, canManage } = await this.getProjectAccess(
+      params.projectId,
+      params.actorId,
+    );
     if (!canManage) {
-      throw new ForbiddenException('Access denied')
+      throw new ForbiddenException('Access denied');
     }
 
     const member = await this.prisma.projectMember.findFirst({
       where: { id: params.memberId, projectId: params.projectId },
       select: { id: true, userId: true },
-    })
+    });
 
     if (!member) {
-      throw new NotFoundException('Member not found')
+      throw new NotFoundException('Member not found');
     }
 
     if (member.userId === project.ownerId) {
-      throw new ForbiddenException('Cannot remove project owner')
+      throw new ForbiddenException('Cannot remove project owner');
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.projectMember.delete({ where: { id: member.id } })
-      await tx.project.update({ where: { id: params.projectId }, data: { memberCount: { decrement: 1 } } })
-    })
+      await tx.projectMember.delete({ where: { id: member.id } });
+      await tx.project.update({
+        where: { id: params.projectId },
+        data: { memberCount: { decrement: 1 } },
+      });
+    });
 
-    return { success: true }
+    return { success: true };
   }
 
-  async updateMemberRole(params: { projectId: string; actorId: string; memberId: string; role: ProjectRole }) {
-    const { project, canManage } = await this.getProjectAccess(params.projectId, params.actorId)
+  async updateMemberRole(params: {
+    projectId: string;
+    actorId: string;
+    memberId: string;
+    role: ProjectRole;
+  }) {
+    const { project, canManage } = await this.getProjectAccess(
+      params.projectId,
+      params.actorId,
+    );
     if (!canManage) {
-      throw new ForbiddenException('Access denied')
+      throw new ForbiddenException('Access denied');
     }
 
     if (params.role === 'OWNER') {
-      throw new ConflictException('Invalid role')
+      throw new ConflictException('Invalid role');
     }
 
     const member = await this.prisma.projectMember.findFirst({
       where: { id: params.memberId, projectId: params.projectId },
       select: { id: true, userId: true, joinedAt: true },
-    })
+    });
 
     if (!member) {
-      throw new NotFoundException('Member not found')
+      throw new NotFoundException('Member not found');
     }
 
     if (member.userId === project.ownerId) {
-      throw new ForbiddenException('Cannot change owner role')
+      throw new ForbiddenException('Cannot change owner role');
     }
 
     const updated = await this.prisma.projectMember.update({
       where: { id: member.id },
       data: { role: params.role },
       select: { id: true, userId: true, role: true, joinedAt: true },
-    })
+    });
 
     return {
       success: true,
@@ -376,42 +453,45 @@ export class ProjectsService {
         joinedAt: updated.joinedAt.toISOString(),
       },
       message: 'Rôle mis à jour',
-    }
+    };
   }
 
-  private async getProjectAccess(projectId: string, actorId: string): Promise<{ project: { id: string; ownerId: string }; canManage: boolean }> {
+  private async getProjectAccess(
+    projectId: string,
+    actorId: string,
+  ): Promise<{ project: { id: string; ownerId: string }; canManage: boolean }> {
     const project = await this.prisma.project.findFirst({
       where: { id: projectId, deletedAt: null },
       select: { id: true, ownerId: true },
-    })
+    });
 
     if (!project) {
-      throw new NotFoundException('Project not found')
+      throw new NotFoundException('Project not found');
     }
 
     if (project.ownerId === actorId) {
-      return { project, canManage: true }
+      return { project, canManage: true };
     }
 
     const member = await this.prisma.projectMember.findUnique({
       where: { projectId_userId: { projectId, userId: actorId } },
       select: { role: true },
-    })
+    });
 
     if (!member) {
-      return { project, canManage: false }
+      return { project, canManage: false };
     }
 
-    return { project, canManage: member.role === 'ADMIN' }
+    return { project, canManage: member.role === 'ADMIN' };
   }
 
   private mapToOwner(raw: {
-    id: string
-    email: string
-    username: string | null
-    firstName: string | null
-    lastName: string | null
-    avatar: string | null
+    id: string;
+    email: string;
+    username: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    avatar: string | null;
   }) {
     return {
       id: raw.id,
@@ -420,10 +500,12 @@ export class ProjectsService {
       firstName: raw.firstName ?? null,
       lastName: raw.lastName ?? null,
       avatar: raw.avatar,
-    }
+    };
   }
 
-  private mapToEntity(raw: Prisma.ProjectGetPayload<{ include: { owner: true } }>): Project {
+  private mapToEntity(
+    raw: Prisma.ProjectGetPayload<{ include: { owner: true } }>,
+  ): Project {
     return {
       id: raw.id,
       name: raw.name,
@@ -440,15 +522,22 @@ export class ProjectsService {
       shareToken: raw.shareToken ?? null,
       nodeCount: raw.nodeCount,
       memberCount: raw.memberCount,
-      viewport: (raw.viewport as unknown as ProjectViewport) ?? { x: 0, y: 0, zoom: 1 },
-      quickActions: (raw.quickActions as unknown as Project['quickActions']) ?? null,
+      viewport: (raw.viewport as unknown as ProjectViewport) ?? {
+        x: 0,
+        y: 0,
+        zoom: 1,
+      },
+      quickActions:
+        (raw.quickActions as unknown as Project['quickActions']) ?? null,
       createdAt: raw.createdAt.toISOString(),
       updatedAt: raw.updatedAt.toISOString(),
-    }
+    };
   }
 
   private mapToDetailEntity(
-    raw: Prisma.ProjectGetPayload<{ include: { owner: true; members: { include: { user: true } } } }>
+    raw: Prisma.ProjectGetPayload<{
+      include: { owner: true; members: { include: { user: true } } };
+    }>,
   ) {
     return {
       ...this.mapToEntity(raw),
@@ -465,11 +554,11 @@ export class ProjectsService {
         role: member.role,
         joinedAt: member.joinedAt.toISOString(),
       })),
-    }
+    };
   }
 
   private mapToMemberEntity(
-    raw: Prisma.ProjectMemberGetPayload<{ include: { user: true } }>
+    raw: Prisma.ProjectMemberGetPayload<{ include: { user: true } }>,
   ) {
     return {
       id: raw.id,
@@ -482,20 +571,22 @@ export class ProjectsService {
       },
       role: raw.role,
       joinedAt: raw.joinedAt.toISOString(),
-    }
+    };
   }
 
-  async getByShareToken(shareToken: string): Promise<{ id: string; shareToken: string }> {
+  async getByShareToken(
+    shareToken: string,
+  ): Promise<{ id: string; shareToken: string }> {
     const project = await this.prisma.project.findFirst({
       where: { shareToken, deletedAt: null },
       select: { id: true, shareToken: true },
-    })
+    });
 
     if (!project || !project.shareToken) {
-      throw new NotFoundException('Invalid share token')
+      throw new NotFoundException('Invalid share token');
     }
 
-    return { id: project.id, shareToken: project.shareToken }
+    return { id: project.id, shareToken: project.shareToken };
   }
 
   async addMemberIfMissing(projectId: string, userId: string): Promise<void> {
@@ -503,45 +594,56 @@ export class ProjectsService {
       await this.prisma.$transaction(async (tx) => {
         await tx.projectMember.create({
           data: { projectId, userId, role: 'MEMBER' },
-        })
+        });
 
-        await tx.project.update({ where: { id: projectId }, data: { memberCount: { increment: 1 } } })
-      })
+        await tx.project.update({
+          where: { id: projectId },
+          data: { memberCount: { increment: 1 } },
+        });
+      });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        return
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        return;
       }
-      throw error
+      throw error;
     }
   }
 
-  private async ensureShareToken(projectId: string, current: string | null): Promise<string | null> {
-    if (current) return current
+  private async ensureShareToken(
+    projectId: string,
+    current: string | null,
+  ): Promise<string | null> {
+    if (current) return current;
 
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      const shareToken = await this.generateShareToken()
+      const shareToken = this.generateShareToken();
 
       try {
         const updated = await this.prisma.project.update({
           where: { id: projectId },
           data: { shareToken },
           select: { shareToken: true },
-        })
+        });
 
-        return updated.shareToken ?? null
+        return updated.shareToken ?? null;
       } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-          continue
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          continue;
         }
-        throw error
+        throw error;
       }
     }
 
-    return null
+    return null;
   }
 
-  private async generateShareToken(): Promise<string> {
-    return randomBytes(24).toString('hex')
+  private generateShareToken(): string {
+    return randomBytes(24).toString('hex');
   }
 }
-

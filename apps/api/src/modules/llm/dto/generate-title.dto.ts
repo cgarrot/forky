@@ -1,19 +1,19 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString, MinLength } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, MinLength } from 'class-validator';
 
 export class GenerateTitleDto {
   @ApiProperty({ example: 'Prompt' })
   @IsString()
   @MinLength(1)
-  prompt!: string
+  prompt!: string;
 
   @ApiProperty({ example: 'Réponse' })
   @IsString()
   @MinLength(1)
-  response!: string
+  response!: string;
 
   @ApiPropertyOptional({ example: 'glm-4.7' })
   @IsOptional()
   @IsString()
-  model?: string
+  model?: string;
 }

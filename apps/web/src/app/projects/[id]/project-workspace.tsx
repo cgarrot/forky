@@ -7,13 +7,9 @@ import { ArrowLeft } from 'lucide-react'
 import { ReactFlowProvider } from '@xyflow/react'
 import { Sidebar } from '@/features/sidebar'
 import { SaveIndicator } from '@/components/ui/SaveIndicator'
-import { Canvas, CanvasFocusOverlay, useKeyboardShortcuts } from '@/features/canvas'
-import { useNodeGenerationProvider } from '@/features/nodes'
-import { useAutoSave } from '@/features/projects'
+import { Canvas, CanvasFocusOverlay, BuildSetupOverlay } from '@/features/canvas'
 import { useProjects } from '@/features/projects/hooks/useProjects'
 import { setLastProjectId } from '@/lib/user-preferences'
-import { useCollaboration } from '@/features/collaboration/hooks/useCollaboration'
-import { useStore } from '@/lib/store'
 
 export function ProjectWorkspace({ projectId }: { projectId: string }) {
   const { loadProjectById } = useProjects()
@@ -49,6 +45,7 @@ export function ProjectWorkspace({ projectId }: { projectId: string }) {
       </ReactFlowProvider>
 
       <CanvasFocusOverlay />
+      <BuildSetupOverlay />
     </AppLayout>
   )
 }

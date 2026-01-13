@@ -1,5 +1,5 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateEdgeDto {
   @ApiPropertyOptional({ example: 'edge_123' })
@@ -7,15 +7,15 @@ export class CreateEdgeDto {
   @IsString()
   @MinLength(1)
   @MaxLength(200)
-  id?: string
+  id?: string;
 
   @ApiProperty({ example: 'node_1' })
   @IsString()
   @MinLength(1)
-  sourceId!: string
+  sourceId!: string;
 
   @ApiProperty({ example: 'node_2' })
   @IsString()
   @MinLength(1)
-  targetId!: string
+  targetId!: string;
 }

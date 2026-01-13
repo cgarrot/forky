@@ -7,3 +7,4 @@ export * from './voice.types';
 export * from './node-types.types';
 export * from './project-mode.types';
 export * from './agent.types';
+export * from './orchestration.types';

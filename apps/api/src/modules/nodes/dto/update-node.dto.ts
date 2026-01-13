@@ -1,5 +1,5 @@
-import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
@@ -10,8 +10,8 @@ import {
   MaxLength,
   MinLength,
   ValidateNested,
-} from 'class-validator'
-import { PositionDto } from './position.dto'
+} from 'class-validator';
+import { PositionDto } from './position.dto';
 
 export class UpdateNodeDto {
   @ApiPropertyOptional({ example: 'Nouveau prompt' })
@@ -19,49 +19,52 @@ export class UpdateNodeDto {
   @IsString()
   @MinLength(0)
   @MaxLength(2000)
-  prompt?: string
+  prompt?: string;
 
   @ApiPropertyOptional({ example: 'Réponse...' })
   @IsOptional()
   @IsString()
   @MaxLength(10000)
-  response?: string
+  response?: string;
 
   @ApiPropertyOptional({ example: 'Résumé...' })
   @IsOptional()
   @IsString()
   @MaxLength(200)
-  summary?: string
+  summary?: string;
 
-  @ApiPropertyOptional({ example: 'IDLE', enum: ['IDLE', 'GENERATING', 'COMPLETED', 'ERROR', 'STALE'] })
+  @ApiPropertyOptional({
+    example: 'IDLE',
+    enum: ['IDLE', 'GENERATING', 'COMPLETED', 'ERROR', 'STALE'],
+  })
   @IsOptional()
   @IsIn(['IDLE', 'GENERATING', 'COMPLETED', 'ERROR', 'STALE'])
-  status?: 'IDLE' | 'GENERATING' | 'COMPLETED' | 'ERROR' | 'STALE'
+  status?: 'IDLE' | 'GENERATING' | 'COMPLETED' | 'ERROR' | 'STALE';
 
   @ApiPropertyOptional({ type: PositionDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => PositionDto)
-  position?: PositionDto
+  position?: PositionDto;
 
   @ApiPropertyOptional({ type: [String] })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  parentIds?: string[]
+  parentIds?: string[];
 
   @ApiPropertyOptional({ type: Object })
   @IsOptional()
   @IsObject()
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>;
 
   @ApiPropertyOptional({ example: 'glm-4.7' })
   @IsOptional()
   @IsString()
-  llmModel?: string
+  llmModel?: string;
 
   @ApiPropertyOptional({ example: 1234 })
   @IsOptional()
   @IsNumber()
-  llmTokens?: number
+  llmTokens?: number;
 }
