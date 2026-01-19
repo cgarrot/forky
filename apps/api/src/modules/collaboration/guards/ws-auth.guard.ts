@@ -11,6 +11,24 @@ import type { Socket } from 'socket.io';
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
+const parseCookieHeader = (value: string | undefined): Record<string, string> => {
+  if (!value) return {};
+  const result: Record<string, string> = {};
+  const parts = value.split(';');
+  for (const part of parts) {
+    const [rawKey, ...rawValueParts] = part.trim().split('=');
+    if (!rawKey) continue;
+    const rawValue = rawValueParts.join('=');
+    if (!rawValue) continue;
+    try {
+      result[rawKey] = decodeURIComponent(rawValue);
+    } catch {
+      result[rawKey] = rawValue;
+    }
+  }
+  return result;
+};
+
 @Injectable()
 export class WsAuthGuard implements CanActivate {
   private readonly logger = new Logger(WsAuthGuard.name);
@@ -51,12 +69,24 @@ export class WsAuthGuard implements CanActivate {
       ? client.handshake.headers.authorization
       : undefined;
 
+    const cookieHeader = isRecord(client.handshake.headers)
+      ? client.handshake.headers.cookie
+      : undefined;
+
+    const cookies = parseCookieHeader(
+      typeof cookieHeader === 'string' ? cookieHeader : undefined,
+    );
+
+    const cookieToken = cookies.access_token ?? cookies.accessToken;
+
     const raw =
       typeof authToken === 'string'
         ? authToken
         : typeof headerAuth === 'string'
           ? headerAuth
-          : undefined;
+          : typeof cookieToken === 'string'
+            ? cookieToken
+            : undefined;
 
     if (!raw) return undefined;
 

@@ -1,4 +1,5 @@
 import { UseGuards } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import {
   ConnectedSocket,
@@ -26,6 +27,24 @@ import { CollaborationService } from './collaboration.service';
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
+
+const parseCookieHeader = (value: string | undefined): Record<string, string> => {
+  if (!value) return {};
+  const result: Record<string, string> = {};
+  const parts = value.split(';');
+  for (const part of parts) {
+    const [rawKey, ...rawValueParts] = part.trim().split('=');
+    if (!rawKey) continue;
+    const rawValue = rawValueParts.join('=');
+    if (!rawValue) continue;
+    try {
+      result[rawKey] = decodeURIComponent(rawValue);
+    } catch {
+      result[rawKey] = rawValue;
+    }
+  }
+  return result;
+};
 
 const extractToken = (client: Socket): string | undefined => {
   const authToken = isRecord(client.handshake.auth)
@@ -55,23 +74,12 @@ const extractToken = (client: Socket): string | undefined => {
   }
 
   const cookieHeader = headers ? headers.cookie : undefined;
-  if (typeof cookieHeader !== 'string' || !cookieHeader.trim())
-    return undefined;
+  if (typeof cookieHeader !== 'string' || !cookieHeader.trim()) return undefined;
 
-  const accessTokenCookie = cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith('access_token='));
+  const cookies = parseCookieHeader(cookieHeader);
+  const cookieToken = cookies.access_token ?? cookies.accessToken;
 
-  if (!accessTokenCookie) return undefined;
-
-  const value = accessTokenCookie.slice('access_token='.length);
-
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+  return typeof cookieToken === 'string' ? cookieToken : undefined;
 };
 
 const getUser = (
@@ -347,30 +355,68 @@ export class CollaborationGateway
 
     await this.projectsService.assertUserHasAccess(dto.projectId, user.id);
 
-    const created = await this.nodesService.create(dto.projectId, {
-      prompt: dto.prompt,
-      position: dto.position,
-      parentIds: dto.parentIds,
-    });
+    let node:
+      | {
+          id: string;
+          prompt: string;
+          response: string | null;
+          summary: string | null;
+          status: string;
+          position: { x: number; y: number };
+          parentIds?: string[];
+          metadata?: Record<string, unknown>;
+          createdAt: string;
+          updatedAt: string;
+        }
+      | null = null;
 
-    const node = created.data;
+    try {
+      const created = await this.nodesService.create(dto.projectId, {
+        id: dto.id,
+        prompt: dto.prompt,
+        position: dto.position,
+        parentIds: dto.parentIds,
+      });
+
+      node = created.data;
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002' &&
+        dto.id
+      ) {
+        const now = new Date().toISOString();
+        node = {
+          id: dto.id,
+          prompt: dto.prompt,
+          response: null,
+          summary: null,
+          status: 'IDLE',
+          position: dto.position,
+          parentIds: dto.parentIds ?? [],
+          metadata: {},
+          createdAt: now,
+          updatedAt: now,
+        };
+      } else {
+        throw error;
+      }
+    }
+
+    if (!node) {
+      throw new WsException('Node create failed');
+    }
 
     this.collaborationService.emitToProject(
       dto.projectId,
       'node:created',
       {
-        node: {
-          id: node.id,
-          prompt: node.prompt,
-          position: node.position,
-          status: node.status,
-          createdAt: node.createdAt,
-        },
+        node,
       },
       client.id,
     );
 
-    return created;
+    return { success: true, data: node };
   }
 
   @UseGuards(WsAuthGuard)

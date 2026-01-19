@@ -64,6 +64,11 @@ class PositionDto {
 }
 
 export class CreateNodeDto {
+  @ApiPropertyOptional({ example: 'node_123' })
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @ApiProperty({ example: 'project_123' })
   @IsString()
   @IsNotEmpty()

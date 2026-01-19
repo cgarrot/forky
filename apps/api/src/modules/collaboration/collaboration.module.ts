@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { NodesModule } from '../nodes/nodes.module';
 import { ProjectsModule } from '../projects/projects.module';
@@ -8,7 +9,13 @@ import { WsAuthGuard } from './guards/ws-auth.guard';
 
 @Module({
   imports: [
-    JwtModule.register({ secret: process.env.JWT_SECRET as string }),
+    ConfigModule,
+    JwtModule.registerAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+      }),
+    }),
     ProjectsModule,
     forwardRef(() => NodesModule),
   ],
