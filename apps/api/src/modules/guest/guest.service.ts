@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import { randomBytes, scryptSync } from 'node:crypto';
@@ -36,12 +32,49 @@ export class GuestService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async start() {
+  async start(authorization?: string) {
+    const session = await this.getGuestSession(authorization);
+    if (session) {
+      const tokens = await this.authService.issueTokensForUserId(
+        session.userId,
+      );
+
+      if (session.project) {
+        return {
+          success: true,
+          data: {
+            access_token: tokens.accessToken,
+            refresh_token: tokens.refreshToken,
+            expires_in: 15 * 60,
+            projectId: session.project.id,
+            shareToken: session.project.shareToken,
+          },
+          message: 'Guest mode started',
+        };
+      }
+
+      const created = await this.projectsService.create(session.userId, {
+        name: 'Untitled project',
+      });
+
+      return {
+        success: true,
+        data: {
+          access_token: tokens.accessToken,
+          refresh_token: tokens.refreshToken,
+          expires_in: 15 * 60,
+          projectId: created.data.id,
+          shareToken: created.data.shareToken,
+        },
+        message: 'Guest mode started',
+      };
+    }
+
     const user = await this.createGuestUser();
     const tokens = await this.authService.issueTokensForUserId(user.id);
 
     const created = await this.projectsService.create(user.id, {
-      name: 'Projet sans titre',
+      name: 'Untitled project',
     });
 
     return {
@@ -53,7 +86,7 @@ export class GuestService {
         projectId: created.data.id,
         shareToken: created.data.shareToken,
       },
-      message: 'Mode invité démarré',
+      message: 'Guest mode started',
     };
   }
 
@@ -62,9 +95,9 @@ export class GuestService {
 
     if (token) {
       const payload = await this.verifyJwt(token);
-      const userId = payload.sub;
+      const userId = payload?.sub;
       if (!userId) {
-        throw new UnauthorizedException('Invalid token');
+        return this.joinAsGuest(shareToken);
       }
 
       const project = await this.projectsService.getByShareToken(shareToken);
@@ -73,10 +106,47 @@ export class GuestService {
       return {
         success: true,
         data: { projectId: project.id },
-        message: 'Projet rejoint',
+        message: 'Project joined',
       };
     }
 
+    return this.joinAsGuest(shareToken);
+  }
+
+  private async verifyJwt(token: string): Promise<JwtPayload | null> {
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  private async getGuestSession(authorization?: string) {
+    const token = extractBearerToken(authorization);
+    if (!token) return null;
+
+    const payload = await this.verifyJwt(token);
+    const userId = payload?.sub;
+    if (!userId) return null;
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, deletedAt: null },
+      select: { id: true, isGuest: true },
+    });
+
+    if (!user?.isGuest) return null;
+
+    const project = await this.prisma.project.findFirst({
+      where: { ownerId: userId, deletedAt: null },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true, shareToken: true },
+    });
+
+    return { userId, project: project ?? null };
+  }
+
+  private async joinAsGuest(shareToken: string) {
     const user = await this.createGuestUser();
     const project = await this.projectsService.getByShareToken(shareToken);
     await this.projectsService.addMemberIfMissing(project.id, user.id);
@@ -91,17 +161,8 @@ export class GuestService {
         refresh_token: tokens.refreshToken,
         expires_in: 15 * 60,
       },
-      message: 'Projet rejoint',
+      message: 'Project joined',
     };
-  }
-
-  private async verifyJwt(token: string): Promise<JwtPayload> {
-    try {
-      const payload = await this.jwtService.verifyAsync<JwtPayload>(token);
-      return payload;
-    } catch {
-      throw new UnauthorizedException('Invalid token');
-    }
   }
 
   private async createGuestUser() {

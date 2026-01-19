@@ -6,8 +6,8 @@ export class GuestController {
   constructor(private readonly guestService: GuestService) {}
 
   @Post('start')
-  start() {
-    return this.guestService.start();
+  start(@Headers('authorization') authorization?: string) {
+    return this.guestService.start(authorization);
   }
 
   @Post('join/:shareToken')
