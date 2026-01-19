@@ -1,8 +1,8 @@
 {
   "name": "@forky/api",
   "version": "0.0.1",
-  "description": "Forky API - NestJS backend",
-  "author": "Forky Team",
+  "description": "forky API - NestJS backend",
+  "author": "forky Team",
   "private": true,
   "license": "MIT",
   "scripts": {

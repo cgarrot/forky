@@ -2,7 +2,7 @@
   "name": "forky-monorepo",
   "version": "0.0.1",
   "private": true,
-  "description": "Forky - Plateforme d'exploration non-linéaire des idées",
+  "description": "forky - Plateforme d'exploration non-linéaire des idées",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -33,6 +33,6 @@
     "react",
     "canvas"
   ],
-  "author": "Forky Team",
+  "author": "forky Team",
   "license": "MIT"
 }
