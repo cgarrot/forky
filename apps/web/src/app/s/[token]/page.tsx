@@ -1,39 +1,44 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 
 export default function ShareJoinPage() {
-  const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const token = typeof params.token === 'string' ? params.token : ''
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const run = async () => {
       try {
-        const response = await fetch('/api/guest/join', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
-        })
-
-        const payload = (await response.json().catch(() => null)) as { projectId?: string; error?: string } | null
-
-        if (!response.ok || !payload?.projectId) {
-          setError(payload?.error ?? 'Lien invalide')
-          return
+        if (token) {
+          try {
+            sessionStorage.setItem('shareToken', token)
+          } catch {
+            // Ignore storage errors (private mode, blocked storage, etc.).
+          }
         }
-
-        router.push(`/projects/${payload.projectId}`)
-        router.refresh()
+        const redirectUrl = `/api/guest/join/redirect?token=${encodeURIComponent(token)}`
+        window.location.assign(redirectUrl)
       } catch {
         setError('Impossible de rejoindre ce projet')
       }
     }
 
+    const errorParam = searchParams.get('error')
+    if (errorParam) {
+      setError(errorParam === 'invalid_token' ? 'Lien invalide' : 'Impossible de rejoindre ce projet')
+      return
+    }
+
+    if (!token) {
+      setError('Lien invalide')
+      return
+    }
+
     void run()
-  }, [token, router])
+  }, [token, searchParams])
 
   if (error) {
     return <div>{error}</div>
