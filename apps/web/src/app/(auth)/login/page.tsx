@@ -34,21 +34,21 @@ function LoginForm() {
       const data = await response.json()
 
       if (!response.ok || !data.success) {
-        setError(data.error || 'Échec de la connexion')
+        setError(data.error || 'Login failed')
         return
       }
 
       showToast({
         type: 'success',
-        title: 'Connexion réussie',
-        message: 'Bienvenue sur Forky',
+        title: 'Login successful',
+        message: 'Welcome to forky',
       })
 
       const redirectTo = searchParams.get('next') || '/projects'
       router.push(redirectTo)
       router.refresh()
     } catch {
-      setError('Une erreur est survenue lors de la connexion')
+      setError('An error occurred during login')
     } finally {
       setIsLoading(false)
     }
@@ -67,11 +67,11 @@ function LoginForm() {
       const data = await response.json()
 
       if (!response.ok || !data.success) {
-        setGuestError(data.error || 'Échec du démarrage du mode invité')
+        setGuestError(data.error || 'Failed to start guest mode')
         showToast({
           type: 'error',
-          title: 'Erreur',
-          message: data.error || 'Échec du démarrage du mode invité',
+          title: 'Error',
+          message: data.error || 'Failed to start guest mode',
         })
         return
       }
@@ -84,32 +84,32 @@ function LoginForm() {
            await navigator.clipboard.writeText(shareUrl)
            showToast({
              type: 'success',
-             title: 'Mode invité activé',
-             message: 'Lien de partage copié dans le presse-papier',
+             title: 'Guest mode activated',
+             message: 'Share link copied to clipboard',
            })
          } catch {
            showToast({
              type: 'success',
-             title: 'Mode invité activé',
-             message: 'Redirection vers votre espace',
+             title: 'Guest mode activated',
+             message: 'Redirecting to your workspace',
            })
          }
        } else {
          showToast({
            type: 'success',
-           title: 'Mode invité activé',
-           message: 'Redirection vers votre espace',
+           title: 'Guest mode activated',
+           message: 'Redirecting to your workspace',
          })
        }
 
        router.push(`/projects/${data.projectId}`)
        router.refresh()
     } catch {
-      setGuestError('Une erreur est survenue lors du démarrage du mode invité')
+      setGuestError('An error occurred while starting guest mode')
       showToast({
         type: 'error',
-        title: 'Erreur',
-        message: 'Une erreur est survenue lors du démarrage du mode invité',
+        title: 'Error',
+        message: 'An error occurred while starting guest mode',
       })
     } finally {
       setIsGuestLoading(false)
@@ -120,10 +120,10 @@ function LoginForm() {
     <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 border border-gray-200 dark:border-gray-800">
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Connexion
+          Login
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
-          Accédez à votre espace d&apos;exploration d&apos;idées
+          Access your idea exploration workspace
         </p>
       </div>
 
@@ -145,7 +145,7 @@ function LoginForm() {
 
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Mot de passe
+            Password
           </label>
           <Input
             id="password"
@@ -172,18 +172,18 @@ function LoginForm() {
           icon={!isLoading && <ArrowRight className="h-5 w-5" />}
           disabled={!email || !password}
         >
-          Se connecter
+          Sign in
         </Button>
       </form>
 
       <div className="mt-6 text-center">
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Pas encore de compte ?{' '}
+          Don&apos;t have an account yet?{' '}
           <Link
             href="/register"
             className="font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
           >
-            Créer un compte
+            Create an account
           </Link>
         </p>
       </div>
@@ -203,7 +203,7 @@ function LoginForm() {
           onClick={handleGuestMode}
           className="text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
         >
-          Mode invité
+          Guest mode
         </Button>
       </div>
      </div>

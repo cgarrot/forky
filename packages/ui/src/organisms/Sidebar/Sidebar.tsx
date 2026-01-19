@@ -10,7 +10,7 @@ export interface SidebarProps {
   onToggle?: () => void;
   children: ReactNode;
   width?: number;
-  title?: string;
+  title?: ReactNode;
   className?: string;
 }
 
@@ -20,9 +20,18 @@ export const Sidebar = ({
   onToggle,
   children,
   width = 280,
-  title = 'Forky',
+  title = 'forky',
   className,
 }: SidebarProps) => {
+  const renderedTitle =
+    typeof title === 'string' || typeof title === 'number' ? (
+      <span className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+        {title}
+      </span>
+    ) : (
+      title
+    );
+
   return (
     <>
       {isOpen && (
@@ -42,9 +51,7 @@ export const Sidebar = ({
         style={{ width }}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-700">
-          <span className="font-semibold text-lg text-gray-900 dark:text-gray-100">
-            {title}
-          </span>
+          <div className="flex items-center gap-2">{renderedTitle}</div>
           {onClose && (
             <button
               onClick={onClose}

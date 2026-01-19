@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
-  title: "Auth - Forky",
-  description: "Connectez-vous à votre espace Forky",
+  title: "Auth - forky",
+  description: "Connectez-vous à votre espace forky",
 }
 
 export default function AuthLayout({

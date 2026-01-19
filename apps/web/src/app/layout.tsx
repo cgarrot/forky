@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Forky - Plateforme d'exploration non-linéaire",
+  title: "forky - Plateforme d'exploration non-linéaire",
   description: "Explorez vos idées de manière non-linéaire avec une interface basée sur des nœuds",
 };
 
