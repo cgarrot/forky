@@ -60,8 +60,8 @@ async function main() {
     create: {
       id: 'clxproj123',
       name: 'Demo Project',
-      description: 'Un projet de démonstration',
-      systemPrompt: 'Tu es un assistant utile.',
+      description: 'A demonstration project',
+      systemPrompt: 'You are a helpful assistant.',
       ownerId: user.id,
       viewport: { x: 0, y: 0, zoom: 1 },
       isPublic: false,

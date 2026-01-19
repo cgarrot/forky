@@ -2,7 +2,7 @@
   "projects": [
     {
       "id": "proj-1768255679635-l7bmhzk",
-      "name": "Projet sans titre",
+      "name": "Untitled project",
       "nodes": [
         {
           "id": "node-1768255795745-2wkjr5n",
@@ -96,20 +96,20 @@
       "quickActions": [
         {
           "id": "qa-1",
-          "label": "Concis",
-          "instruction": "Reformule de manière plus concise en gardant l'essentiel.",
+          "label": "Concise",
+          "instruction": "Rephrase more concisely while keeping the essentials.",
           "order": 0
         },
         {
           "id": "qa-2",
-          "label": "Détails",
-          "instruction": "Développe avec plus de détails et d'exemples.",
+          "label": "Details",
+          "instruction": "Expand with more details and examples.",
           "order": 1
         },
         {
           "id": "qa-3",
           "label": "ELI5",
-          "instruction": "Explique comme à un enfant de 5 ans.",
+          "instruction": "Explain like to a 5-year-old child.",
           "order": 2
         }
       ],
