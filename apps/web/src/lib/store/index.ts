@@ -42,7 +42,7 @@ const defaultQuickActions: QuickAction[] = [
   {
     id: 'qa-3',
     label: 'ELI5',
-    instruction: 'Explain like I'm 5 years old.',
+    instruction: "Explain like I'm 5 years old.",
     order: 2,
   },
 ];
