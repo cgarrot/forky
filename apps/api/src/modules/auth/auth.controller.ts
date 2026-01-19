@@ -21,7 +21,7 @@ export class AuthController {
         access_token: data.tokens.accessToken,
         refresh_token: data.tokens.refreshToken,
       },
-      message: 'Compte créé avec succès',
+      message: 'Account created successfully',
     };
   }
 
@@ -38,7 +38,7 @@ export class AuthController {
         refresh_token: data.tokens.refreshToken,
         expires_in: 15 * 60,
       },
-      message: 'Connexion réussie',
+      message: 'Login successful',
     };
   }
 
@@ -52,7 +52,7 @@ export class AuthController {
         access_token: data.accessToken,
         expires_in: 15 * 60,
       },
-      message: 'Token rafraîchi',
+      message: 'Token refreshed',
     };
   }
 

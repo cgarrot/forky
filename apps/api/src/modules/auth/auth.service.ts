@@ -122,14 +122,14 @@ export class AuthService {
     if (existingEmail) {
       throw new ConflictException({
         code: 'EMAIL_ALREADY_EXISTS',
-        message: 'Cet email est déjà utilisé',
+        message: 'This email is already in use',
       });
     }
 
     if (existingUsername) {
       throw new ConflictException({
         code: 'USERNAME_ALREADY_EXISTS',
-        message: "Ce nom d'utilisateur est déjà utilisé",
+        message: 'This username is already in use',
       });
     }
 
@@ -163,7 +163,7 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException({
         code: 'INVALID_CREDENTIALS',
-        message: 'Email ou mot de passe incorrect',
+        message: 'Invalid email or password',
       });
     }
 
@@ -171,7 +171,7 @@ export class AuthService {
     if (!valid) {
       throw new UnauthorizedException({
         code: 'INVALID_CREDENTIALS',
-        message: 'Email ou mot de passe incorrect',
+        message: 'Invalid email or password',
       });
     }
 
@@ -205,7 +205,7 @@ export class AuthService {
     if (!stored) {
       throw new UnauthorizedException({
         code: 'REFRESH_TOKEN_REVOKED',
-        message: 'Token révoqué',
+        message: 'Token revoked',
       });
     }
 
@@ -213,7 +213,7 @@ export class AuthService {
       await this.prisma.refreshToken.delete({ where: { id: stored.id } });
       throw new UnauthorizedException({
         code: 'INVALID_REFRESH_TOKEN',
-        message: 'Token de rafraîchissement invalide ou expiré',
+        message: 'Invalid or expired refresh token',
       });
     }
 
