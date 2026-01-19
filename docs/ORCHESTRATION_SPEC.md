@@ -1,4 +1,4 @@
-## Forky v1 — Spécification Produit (Explore ⇄ Build, Plans, Artifacts, Focus Mode)
+## forky v1 — Spécification Produit (Explore ⇄ Build, Plans, Artifacts, Focus Mode)
 
 - **Statut**: draft (vision verrouillée, prête à être découpée en backlog)
 - **Langue**: FR

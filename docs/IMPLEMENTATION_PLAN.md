@@ -1,4 +1,4 @@
-# Plan d'Implémentation - Forky avec Architecture Hybride
+# Plan d'Implémentation - forky avec Architecture Hybride
 
 > **Guide complet avec prompts pour Cursor/Claude Code agents**
 
@@ -17,12 +17,12 @@
 ## 1. Vue d'Ensemble
 
 ### Objectif
-Construire l'application **Forky** (plateforme d'exploration non-linéaire des idées) en utilisant l'architecture hybride définie dans les docs.
+Construire l'application **forky** (plateforme d'exploration non-linéaire des idées) en utilisant l'architecture hybride définie dans les docs.
 
 ### Architecture Cible
 
 ```
-forky-v1/
+forky/
 ├── apps/
 │   ├── web/                          # Frontend Next.js
 │   │   ├── src/
@@ -112,20 +112,20 @@ forky-v1/
 
 ## 2. Phase 1 : Préparation & Backup
 
-### 🎯 Prompt Agent 1 : Initialiser le Projet Forky
+### 🎯 Prompt Agent 1 : Initialiser le Projet forky
 
-**Rôle** : Initialiser le projet Forky avec la structure monorepo
+**Rôle** : Initialiser le projet forky avec la structure monorepo
 
 **Prompt :**
 ```
-Tu es un expert DevOps et architecture de logiciel. Ta tâche est d'initialiser le projet Forky avec une architecture monorepo propre.
+Tu es un expert DevOps et architecture de logiciel. Ta tâche est d'initialiser le projet forky avec une architecture monorepo propre.
 
 Contexte :
-- Projet : Forky (plateforme d'exploration non-linéaire des idées)
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/
+- Projet : forky (plateforme d'exploration non-linéaire des idées)
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/
 - Architecture cible : Monorepo avec pnpm workspace et architecture hybride
 
-Fonctionnalités principales de Forky :
+Fonctionnalités principales de forky :
 - Canvas infini avec React Flow
 - Nœuds de brainstorming avec génération LLM
 - Connexions entre nœuds
@@ -193,7 +193,7 @@ Tâches à accomplir :
    - Configurer les dépendances entre packages
 
 8. **Créer README.md à la racine**
-   - Documenter le projet Forky
+   - Documenter le projet forky
    - Expliquer l'architecture monorepo
    - Documenter les commandes principales (pnpm dev, pnpm build, etc.)
 
@@ -228,12 +228,12 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert TypeScript et architecture de packages. Ta tâche est de créer les packages partagés pour le monorepo Forky.
+Tu es un expert TypeScript et architecture de packages. Ta tâche est de créer les packages partagés pour le monorepo forky.
 
 Contexte :
 - Monorepo déjà initialisé avec structure de base
 - Packages à créer : packages/shared/, packages/config/, packages/contracts/
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/
 
 Tâches à accomplir :
 
@@ -427,13 +427,13 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer le package UI avec les atomes de base selon Atomic Design pour Forky.
+Tu es un expert React et Design Systems. Ta tâche est de créer le package UI avec les atomes de base selon Atomic Design pour forky.
 
 Contexte :
 - Monorepo déjà initialisé
 - Packages partagés déjà créés (shared, config, contracts)
 - Package à créer : packages/ui/
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/DESIGN_SYSTEM.md
 - Style du projet : Moderne, clean, professionel avec accents bleus et gris
 
 Tâches à accomplir :
@@ -564,12 +564,12 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer les molecules du package UI pour Forky.
+Tu es un expert React et Design Systems. Ta tâche est de créer les molecules du package UI pour forky.
 
 Contexte :
 - packages/ui avec atomes déjà créés
-- Molecules à créer pour Forky : NodeHeader, FormField, QuickActionButton, Dropzone, MediaPreview
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
+- Molecules à créer pour forky : NodeHeader, FormField, QuickActionButton, Dropzone, MediaPreview
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/DESIGN_SYSTEM.md
 
 Tâches à accomplir :
 
@@ -712,13 +712,13 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et Design Systems. Ta tâche est de créer les organismes et templates du package UI pour Forky.
+Tu es un expert React et Design Systems. Ta tâche est de créer les organismes et templates du package UI pour forky.
 
 Contexte :
 - packages/ui avec atomes et molecules déjà créés
 - Organismes à créer : Sidebar, CanvasControls, ToastContainer, PresenceIndicator
 - Templates à créer : AppLayout, ProjectLayout, CanvasLayout
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/DESIGN_SYSTEM.md
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/DESIGN_SYSTEM.md
 
 Tâches à accomplir :
 
@@ -940,7 +940,7 @@ Tâches à accomplir :
      * Les animations fonctionnent
    - Tester la page de test UI : http://localhost:3000/test-ui
 
-9. **Créer les composants de base pour Forky**
+9. **Créer les composants de base pour forky**
    - Créer une Sidebar simple avec @forky/ui
    - Créer un CanvasControls avec @forky/ui
    - Intégrer ces composants dans la page principale
@@ -958,7 +958,7 @@ Sortie attendue :
 - Page principale créée avec AppLayout
 - Layout principal créé avec ToastContainer
 - Page de test UI créée
-- Composants de base Forky (Sidebar, CanvasControls) créés
+- Composants de base forky (Sidebar, CanvasControls) créés
 - Application web fonctionnelle avec @forky/ui
 ```
 
@@ -972,16 +972,16 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer la feature Canvas selon l'architecture hybride pour Forky.
+Tu es un expert React et architecture de features. Ta tâche est de créer la feature Canvas selon l'architecture hybride pour forky.
 
 Contexte :
 - apps/web avec structure monorepo initialisée
 - @forky/ui intégré
 - Feature Canvas à créer dans apps/web/src/features/canvas/
 - Composants React Flow à utiliser : @xyflow/react (version 12.0.0)
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Canvas pour Forky :
+Fonctionnalités de Canvas pour forky :
 - Canvas infini avec pan et zoom
 - Support pour React Flow
 - Grille de fond
@@ -1119,7 +1119,7 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer la feature Nodes selon l'architecture hybride pour Forky.
+Tu es un expert React et architecture de features. Ta tâche est de créer la feature Nodes selon l'architecture hybride pour forky.
 
 Contexte :
 - apps/web avec structure monorepo
@@ -1127,9 +1127,9 @@ Contexte :
 - Feature canvas créée
 - Feature nodes à créer dans apps/web/src/features/nodes/
 - LLM integration : génération de réponses avec streaming
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Nodes pour Forky :
+Fonctionnalités de Nodes pour forky :
 - Nœuds de brainstorming avec prompt et réponse LLM
 - Édition du prompt
 - Génération LLM avec streaming
@@ -1273,16 +1273,16 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert React et architecture de features. Ta tâche est de créer les features Sidebar et Projects selon l'architecture hybride pour Forky.
+Tu es un expert React et architecture de features. Ta tâche est de créer les features Sidebar et Projects selon l'architecture hybride pour forky.
 
 Contexte :
 - apps/web avec structure monorepo
 - @forky/ui intégré
 - Features canvas et nodes créées
 - Features sidebar et projects à créer dans apps/web/src/features/
-- Documentation de référence : /Users/cgarrot/zob/forky-v1/docs/FRONTEND_ARCHITECTURE.md
+- Documentation de référence : /Users/cgarrot/zob/forky/docs/FRONTEND_ARCHITECTURE.md
 
-Fonctionnalités de Sidebar pour Forky :
+Fonctionnalités de Sidebar pour forky :
 - Sidebar avec navigation entre projets
 - Création de nouveaux projets
 - Liste des projets
@@ -1291,7 +1291,7 @@ Fonctionnalités de Sidebar pour Forky :
 - Éditeur de système prompt
 - Toggle sidebar (ouvert/fermé)
 
-Fonctionnalités de Projects pour Forky :
+Fonctionnalités de Projects pour forky :
 - Créer/sauvegarder/charger des projets
 - Gestion du système prompt par projet
 - Gestion des quick actions (macros)
@@ -1499,7 +1499,7 @@ Sortie attendue :
 
 **Prompt :**
 ```
-Tu es un expert en validation et documentation. Ta tâche est de valider l'architecture complète de Forky et de créer la documentation.
+Tu es un expert en validation et documentation. Ta tâche est de valider l'architecture complète de forky et de créer la documentation.
 
 Contexte :
 - Toutes les features créées (canvas, nodes, sidebar, projects)
@@ -1542,9 +1542,9 @@ Tâches à accomplir :
    - Corriger tous les avertissements
 
 5. **Créer le README principal**
-   - Mettre à jour /Users/cgarrot/zob/forky-v1/README.md
+   - Mettre à jour /Users/cgarrot/zob/forky/README.md
    - Inclure :
-     * Description de Forky
+     * Description de forky
      * Screenshot/démonstration
      * Installation
      * Commandes de développement
@@ -1576,7 +1576,7 @@ Tâches à accomplir :
    * Processus de review
 
 8. **Mettre à jour les docs existants**
-   - Mettre à jour docs/ARCHITECTURE_HYBRID.md avec les spécificités de Forky
+   - Mettre à jour docs/ARCHITECTURE_HYBRID.md avec les spécificités de forky
    - Mettre à jour docs/DESIGN_SYSTEM.md avec les composants spécifiques
    - Mettre à jour docs/FEATURE_STRUCTURE.md avec les features implémentées
 
@@ -1590,7 +1590,7 @@ Tâches à accomplir :
 
 10. **Git commit**
     - Committer tous les changements
-    - Message : "feat: implement Forky with hybrid architecture v1.0"
+    - Message : "feat: implement forky with hybrid architecture v1.0"
     - Pousser les changements
 
 Sortie attendue :
@@ -1609,16 +1609,16 @@ Sortie attendue :
 ## 📚 Références
 
 ### Documents d'Architecture
-- `forky-v1/docs/ARCHITECTURE_HYBRID.md` - Architecture hybride complète
-- `forky-v1/docs/DESIGN_SYSTEM.md` - Design system détaillé
-- `forky-v1/docs/FRONTEND_ARCHITECTURE.md` - Architecture frontend
-- `forky-v1/docs/BACKEND_ARCHITECTURE.md` - Architecture backend
-- `forky-v1/docs/FEATURE_STRUCTURE.md` - Structure des features
-- `forky-v1/docs/MIGRATION_GUIDE.md` - Guide de migration
-- `forky-v1/docs/CODING_STANDARDS.md` - Standards de code
+- `forky/docs/ARCHITECTURE_HYBRID.md` - Architecture hybride complète
+- `forky/docs/DESIGN_SYSTEM.md` - Design system détaillé
+- `forky/docs/FRONTEND_ARCHITECTURE.md` - Architecture frontend
+- `forky/docs/BACKEND_ARCHITECTURE.md` - Architecture backend
+- `forky/docs/FEATURE_STRUCTURE.md` - Structure des features
+- `forky/docs/MIGRATION_GUIDE.md` - Guide de migration
+- `forky/docs/CODING_STANDARDS.md` - Standards de code
 
-### Documentation Forky
-- `forky-v1/docs/` - Documentation complète du projet
+### Documentation forky
+- `forky/docs/` - Documentation complète du projet
 
 ### Technologies
 - Next.js 15.0.0
@@ -1689,7 +1689,7 @@ Ces fonctionnalités ne sont PAS incluses dans ce plan d'implémentation, mais s
 
 ---
 
-**Plan d'implémentation créé pour le projet Forky v1.0**
+**Plan d'implémentation créé pour le projet forky v1.0**
 **Date de création : 2026-01-05**
 **Version : 1.0**
 **Architecture : Hybride (Atomic + Feature-Based)**
