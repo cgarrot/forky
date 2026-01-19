@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { enableMapSet } from 'immer';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
@@ -28,8 +29,8 @@ enableMapSet();
 const defaultQuickActions: QuickAction[] = [
   {
     id: 'qa-1',
-    label: 'Concis',
-    instruction: "Reformule de manière plus concise en gardant l'essentiel.",
+    label: 'Concise',
+    instruction: 'Rephrase more concisely while keeping the essentials.',
     order: 0,
   },
   {
@@ -81,6 +82,7 @@ interface StoreState {
   settings: Settings;
   quickActions: QuickAction[];
   ui: UIState;
+  promptFocusNodeId: string | null;
   viewport: Viewport;
   currentProjectId: string | null;
   currentProjectName: string;
@@ -145,6 +147,7 @@ interface StoreState {
   setActiveModal: (modal: string | null) => void;
   setActiveQuickActionId: (id: string | null) => void;
   setFocusModeNodeId: (nodeId: string | null) => void;
+  setPromptFocusNodeId: (nodeId: string | null) => void;
   setCurrentProjectId: (id: string | null) => void;
   setCurrentProjectName: (name: string) => void;
 
@@ -368,9 +371,10 @@ export const useStore = create<StoreState>()(
         activeQuickActionId: null,
         focusModeNodeId: null,
       },
+      promptFocusNodeId: null,
       viewport: { x: 0, y: 0, zoom: 1 },
       currentProjectId: null,
-      currentProjectName: 'Projet sans titre',
+      currentProjectName: 'Untitled project',
       history: { past: [], future: [], lastKey: null, lastAt: 0 },
       buildSession: null,
 
@@ -1599,6 +1603,12 @@ export const useStore = create<StoreState>()(
         });
       },
 
+      setPromptFocusNodeId: (nodeId) => {
+        set((state) => {
+          state.promptFocusNodeId = nodeId;
+        });
+      },
+
       setCurrentProjectId: (id) => {
         set((state) => {
           state.currentProjectId = id;
@@ -1626,6 +1636,7 @@ export const useStore = create<StoreState>()(
             state.selectedNodeIds.clear();
             state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
             state.buildSession = null;
+            state.promptFocusNodeId = null;
 
          });
        },
@@ -1636,9 +1647,10 @@ export const useStore = create<StoreState>()(
            state.edges.clear();
            state.selectedNodeIds.clear();
            state.currentProjectId = null;
-            state.currentProjectName = 'Projet sans titre';
+            state.currentProjectName = 'Untitled project';
             state.history = { past: [], future: [], lastKey: null, lastAt: 0 };
             state.buildSession = null;
+            state.promptFocusNodeId = null;
 
          });
        },
@@ -1704,59 +1716,149 @@ export const useUI = () => useStore((state) => state.ui);
 export const useViewport = () => useStore((state) => state.viewport);
 export const useBuildSession = () => useStore((state) => state.buildSession);
 
-export const useBuildActions = () =>
-  useStore((state) => ({
-    startBuildSession: state.startBuildSession,
-    startBuildFromNode: state.startBuildFromNode,
-    startPlanScopeEdit: state.startPlanScopeEdit,
-    applyBuildScopeToPlan: state.applyBuildScopeToPlan,
-    endBuildSession: state.endBuildSession,
-    setNodeMode: state.setNodeMode,
-    setBuildDeliverable: state.setBuildDeliverable,
-    setBuildScopeConfig: state.setBuildScopeConfig,
-    recomputeBuildSuggestions: state.recomputeBuildSuggestions,
-    toggleBuildInclude: state.toggleBuildInclude,
-    toggleBuildExclude: state.toggleBuildExclude,
-    toggleBuildPin: state.toggleBuildPin,
-    includeBuildBranch: state.includeBuildBranch,
-    excludeBuildBranch: state.excludeBuildBranch,
-    pinBuildBranch: state.pinBuildBranch,
-    unpinBuildBranch: state.unpinBuildBranch,
-    resetBuildToSuggested: state.resetBuildToSuggested,
-    generatePlanFromBuildSession: state.generatePlanFromBuildSession,
-  }));
+export const useBuildActions = () => {
+  const startBuildSession = useStore((state) => state.startBuildSession);
+  const startBuildFromNode = useStore((state) => state.startBuildFromNode);
+  const startPlanScopeEdit = useStore((state) => state.startPlanScopeEdit);
+  const applyBuildScopeToPlan = useStore((state) => state.applyBuildScopeToPlan);
+  const endBuildSession = useStore((state) => state.endBuildSession);
+  const setNodeMode = useStore((state) => state.setNodeMode);
+  const setBuildDeliverable = useStore((state) => state.setBuildDeliverable);
+  const setBuildScopeConfig = useStore((state) => state.setBuildScopeConfig);
+  const recomputeBuildSuggestions = useStore((state) => state.recomputeBuildSuggestions);
+  const toggleBuildInclude = useStore((state) => state.toggleBuildInclude);
+  const toggleBuildExclude = useStore((state) => state.toggleBuildExclude);
+  const toggleBuildPin = useStore((state) => state.toggleBuildPin);
+  const includeBuildBranch = useStore((state) => state.includeBuildBranch);
+  const excludeBuildBranch = useStore((state) => state.excludeBuildBranch);
+  const pinBuildBranch = useStore((state) => state.pinBuildBranch);
+  const unpinBuildBranch = useStore((state) => state.unpinBuildBranch);
+  const resetBuildToSuggested = useStore((state) => state.resetBuildToSuggested);
+  const generatePlanFromBuildSession = useStore((state) => state.generatePlanFromBuildSession);
 
-export const usePlanActions = () =>
-  useStore((state) => ({
-    refreshPlanVersion: state.refreshPlanVersion,
-    setActivePlanVersion: state.setActivePlanVersion,
-    generateArtifactFromPlan: state.generateArtifactFromPlan,
-    generateTodoFromPlan: state.generateTodoFromPlan,
-  }));
+  return useMemo(
+    () => ({
+      startBuildSession,
+      startBuildFromNode,
+      startPlanScopeEdit,
+      applyBuildScopeToPlan,
+      endBuildSession,
+      setNodeMode,
+      setBuildDeliverable,
+      setBuildScopeConfig,
+      recomputeBuildSuggestions,
+      toggleBuildInclude,
+      toggleBuildExclude,
+      toggleBuildPin,
+      includeBuildBranch,
+      excludeBuildBranch,
+      pinBuildBranch,
+      unpinBuildBranch,
+      resetBuildToSuggested,
+      generatePlanFromBuildSession,
+    }),
+    [
+      startBuildSession,
+      startBuildFromNode,
+      startPlanScopeEdit,
+      applyBuildScopeToPlan,
+      endBuildSession,
+      setNodeMode,
+      setBuildDeliverable,
+      setBuildScopeConfig,
+      recomputeBuildSuggestions,
+      toggleBuildInclude,
+      toggleBuildExclude,
+      toggleBuildPin,
+      includeBuildBranch,
+      excludeBuildBranch,
+      pinBuildBranch,
+      unpinBuildBranch,
+      resetBuildToSuggested,
+      generatePlanFromBuildSession,
+    ]
+  );
+};
 
-export const useNodeActions = () =>
-  useStore((state) => ({
-    addNode: state.addNode,
-    addNodeWithPrompt: state.addNodeWithPrompt,
-    updateNode: state.updateNode,
-    deleteNode: state.deleteNode,
-    setNodeStatus: state.setNodeStatus,
-    updateNodePrompt: state.updateNodePrompt,
-    updateNodeResponse: state.updateNodeResponse,
-    updateNodeSummary: state.updateNodeSummary,
-  }));
+export const usePlanActions = () => {
+  const refreshPlanVersion = useStore((state) => state.refreshPlanVersion);
+  const setActivePlanVersion = useStore((state) => state.setActivePlanVersion);
+  const generateArtifactFromPlan = useStore((state) => state.generateArtifactFromPlan);
+  const generateTodoFromPlan = useStore((state) => state.generateTodoFromPlan);
 
-export const useEdgeActions = () =>
-  useStore((state) => ({
-    addEdge: state.addEdge,
-    deleteEdge: state.deleteEdge,
-  }));
+  return useMemo(
+    () => ({
+      refreshPlanVersion,
+      setActivePlanVersion,
+      generateArtifactFromPlan,
+      generateTodoFromPlan,
+    }),
+    [refreshPlanVersion, setActivePlanVersion, generateArtifactFromPlan, generateTodoFromPlan]
+  );
+};
 
-export const useSelectionActions = () =>
-  useStore((state) => ({
-    selectNode: state.selectNode,
-    deselectNode: state.deselectNode,
-    clearSelection: state.clearSelection,
-    toggleNodeSelection: state.toggleNodeSelection,
-    setSelectedNodeIds: state.setSelectedNodeIds,
-  }));
+export const useNodeActions = () => {
+  const addNode = useStore((state) => state.addNode);
+  const addNodeWithPrompt = useStore((state) => state.addNodeWithPrompt);
+  const updateNode = useStore((state) => state.updateNode);
+  const deleteNode = useStore((state) => state.deleteNode);
+  const setNodeStatus = useStore((state) => state.setNodeStatus);
+  const updateNodePrompt = useStore((state) => state.updateNodePrompt);
+  const updateNodeResponse = useStore((state) => state.updateNodeResponse);
+  const updateNodeSummary = useStore((state) => state.updateNodeSummary);
+
+  return useMemo(
+    () => ({
+      addNode,
+      addNodeWithPrompt,
+      updateNode,
+      deleteNode,
+      setNodeStatus,
+      updateNodePrompt,
+      updateNodeResponse,
+      updateNodeSummary,
+    }),
+    [
+      addNode,
+      addNodeWithPrompt,
+      updateNode,
+      deleteNode,
+      setNodeStatus,
+      updateNodePrompt,
+      updateNodeResponse,
+      updateNodeSummary,
+    ]
+  );
+};
+
+export const useEdgeActions = () => {
+  const addEdge = useStore((state) => state.addEdge);
+  const deleteEdge = useStore((state) => state.deleteEdge);
+
+  return useMemo(
+    () => ({
+      addEdge,
+      deleteEdge,
+    }),
+    [addEdge, deleteEdge]
+  );
+};
+
+export const useSelectionActions = () => {
+  const selectNode = useStore((state) => state.selectNode);
+  const deselectNode = useStore((state) => state.deselectNode);
+  const clearSelection = useStore((state) => state.clearSelection);
+  const toggleNodeSelection = useStore((state) => state.toggleNodeSelection);
+  const setSelectedNodeIds = useStore((state) => state.setSelectedNodeIds);
+
+  return useMemo(
+    () => ({
+      selectNode,
+      deselectNode,
+      clearSelection,
+      toggleNodeSelection,
+      setSelectedNodeIds,
+    }),
+    [selectNode, deselectNode, clearSelection, toggleNodeSelection, setSelectedNodeIds]
+  );
+};

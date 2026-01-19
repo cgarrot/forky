@@ -1,4 +1,4 @@
-export const APP_NAME = 'Forky';
+export const APP_NAME = 'forky';
 export const APP_VERSION = '0.1.0';
 export const APP_DESCRIPTION = 'AI-powered canvas for collaborative idea generation';
 
