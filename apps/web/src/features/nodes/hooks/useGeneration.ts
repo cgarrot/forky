@@ -127,6 +127,11 @@ export function useGeneration(nodeId: string) {
     setError(null)
     setNodeStatus(nodeId, 'loading')
     updateNodeResponse(nodeId, '')
+    window.dispatchEvent(
+      new CustomEvent('node:ws-update', {
+        detail: { nodeId, data: { status: 'loading', response: '' } },
+      })
+    )
     fullResponseRef.current = ''
 
     closeStream()
@@ -206,7 +211,7 @@ export function useGeneration(nodeId: string) {
             }
 
 
-          if (currentProjectName === 'Projet sans titre' && node.prompt) {
+          if (currentProjectName === 'Untitled project' && node.prompt) {
             const prompt = node.prompt
             const response = fullResponseRef.current
             void (async () => {
@@ -217,6 +222,19 @@ export function useGeneration(nodeId: string) {
             })()
           }
 
+          window.dispatchEvent(
+            new CustomEvent('node:ws-update', {
+              detail: {
+                nodeId,
+                data: {
+                  status: 'idle',
+                  response: fullResponseRef.current,
+                  summary: typeof data.summary === 'string' && data.summary.trim() ? data.summary : undefined,
+                },
+              },
+            })
+          )
+
           markDescendantsStale(nodeId, nodes)
         }
       }
@@ -224,14 +242,19 @@ export function useGeneration(nodeId: string) {
       source.onerror = () => {
         closeStream()
         setIsGenerating(false)
-        setError('Erreur de streaming')
+        setError('Streaming error')
         setNodeStatus(nodeId, 'error')
+        window.dispatchEvent(
+          new CustomEvent('node:ws-update', {
+            detail: { nodeId, data: { status: 'error' } },
+          })
+        )
         updateNode(nodeId, {
           metadata: {
             ...node.metadata,
             customData: {
               ...node.metadata?.customData,
-              error: 'Erreur de streaming',
+              error: 'Streaming error',
             },
           },
         })
@@ -240,6 +263,11 @@ export function useGeneration(nodeId: string) {
       const errorMessage = err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
       setNodeStatus(nodeId, 'error')
+      window.dispatchEvent(
+        new CustomEvent('node:ws-update', {
+          detail: { nodeId, data: { status: 'error' } },
+        })
+      )
       updateNode(nodeId, {
         metadata: {
           ...node.metadata,
@@ -303,6 +331,11 @@ export function useNodeGenerationProvider() {
 
       setNodeStatus(id, 'loading')
       updateNodeResponse(id, '')
+      window.dispatchEvent(
+        new CustomEvent('node:ws-update', {
+          detail: { nodeId: id, data: { status: 'loading', response: '' } },
+        })
+      )
 
       let full = ''
 
@@ -378,7 +411,7 @@ export function useNodeGenerationProvider() {
               }
             }
 
-            if (currentProjectName === 'Projet sans titre' && node.prompt) {
+            if (currentProjectName === 'Untitled project' && node.prompt) {
               void (async () => {
                 const title = await generateTitle(node.prompt, full)
                 if (title && title.trim()) {
@@ -386,6 +419,19 @@ export function useNodeGenerationProvider() {
                 }
               })()
             }
+
+            window.dispatchEvent(
+              new CustomEvent('node:ws-update', {
+                detail: {
+                  nodeId: id,
+                  data: {
+                    status: 'idle',
+                    response: full,
+                    summary: typeof data.summary === 'string' && data.summary.trim() ? data.summary : undefined,
+                  },
+                },
+              })
+            )
 
             if (options.markDescendants) {
               markDescendantsStale(id, currentNodes)
@@ -397,7 +443,7 @@ export function useNodeGenerationProvider() {
 
         source.onerror = () => {
           source.close()
-          reject(new Error('Erreur de streaming'))
+          reject(new Error('Streaming error'))
         }
       })
     }
@@ -410,12 +456,17 @@ export function useNodeGenerationProvider() {
         if (!node) return
 
         setNodeStatus(event.detail.nodeId, 'error')
+        window.dispatchEvent(
+          new CustomEvent('node:ws-update', {
+            detail: { nodeId: event.detail.nodeId, data: { status: 'error' } },
+          })
+        )
         updateNode(event.detail.nodeId, {
           metadata: {
             ...node.metadata,
             customData: {
               ...node.metadata?.customData,
-              error: 'Erreur de génération',
+              error: 'Generation error',
             },
           },
         })

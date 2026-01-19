@@ -1,5 +1,6 @@
 'use client'
 
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Plus, FileText, Zap, X } from 'lucide-react'
 import type { QuickAction } from '@forky/shared'
 
@@ -24,11 +25,34 @@ export function CreationMenu({
   onSelectQuickAction,
   onClose,
 }: CreationMenuProps) {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [smartPosition, setSmartPosition] = useState({ x, y })
+
+  const updatePosition = useCallback(() => {
+    if (!containerRef.current) return
+
+    const rect = containerRef.current.getBoundingClientRect()
+    const nextPosition = calculateSmartPosition(x, y, rect.width, rect.height, 16)
+
+    setSmartPosition((prev) => (prev.x === nextPosition.x && prev.y === nextPosition.y ? prev : nextPosition))
+  }, [x, y])
+
+  useLayoutEffect(() => {
+    updatePosition()
+  }, [updatePosition, quickActions.length, sourceNodeId])
+
+  useEffect(() => {
+    const handleResize = () => updatePosition()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [updatePosition])
+
   return (
     <div
       className="fixed z-[1001] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden"
-      style={{ left: x, top: y }}
+      style={{ left: smartPosition.x, top: smartPosition.y }}
       onClick={(e) => e.stopPropagation()}
+      ref={containerRef}
     >
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <span className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -78,7 +102,7 @@ export function CreationMenu({
               Nœud avec prompt
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Saisir le prompt avant création
+              Ouvre le prompt dans la carte
             </div>
           </div>
         </button>
@@ -125,4 +149,43 @@ export function CreationMenu({
       )}
     </div>
   )
+}
+
+function calculateSmartPosition(
+  initialX: number,
+  initialY: number,
+  elementWidth: number,
+  elementHeight: number,
+  padding: number = 16
+): { x: number; y: number } {
+  const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1920
+  const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 1080
+
+  let adjustedX = initialX
+
+  if (initialX + elementWidth + padding > viewportWidth) {
+    adjustedX = initialX - elementWidth - padding
+    if (adjustedX < padding) {
+      adjustedX = viewportWidth - elementWidth - padding
+    }
+  }
+
+  if (adjustedX < padding) {
+    adjustedX = padding
+  }
+
+  let adjustedY = initialY
+
+  if (initialY + elementHeight + padding > viewportHeight) {
+    adjustedY = initialY - elementHeight - padding
+    if (adjustedY < padding) {
+      adjustedY = viewportHeight - elementHeight - padding
+    }
+  }
+
+  if (adjustedY < padding) {
+    adjustedY = padding
+  }
+
+  return { x: adjustedX, y: adjustedY }
 }

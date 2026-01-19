@@ -14,9 +14,8 @@ import {
   getTodoNodeData,
   writeOrchestrationMetadata,
 } from '@forky/shared'
-import type { Node as ForkyNode } from '@forky/shared'
+import type { Node as forkyNode } from '@forky/shared'
 import type { SourceKind, SourceNodeData, TodoItem, TodoNodeData } from '@forky/shared'
-import { usePlanActions } from '@/lib/store'
 import { cn } from '@forky/shared'
 
 type RecommendationType =
@@ -41,7 +40,7 @@ interface Recommendation {
     logicalRole: 'conversation' | 'challenger' | 'source'
     challenger?: { intensity: 'soft' | 'medium' | 'hard' }
   }
-  condition?: (node: ForkyNode | null) => boolean
+  condition?: (node: forkyNode | null) => boolean
 }
 
 function computeLineDiff(params: { from: string; to: string }): string {
@@ -90,10 +89,10 @@ const RECOMMENDATIONS: Recommendation[] = [
   {
     id: 'clarifier',
     type: 'clarifier',
-    label: 'Clarifier',
-    description: 'Pose 3-5 questions pour approfondir votre compréhension',
+    label: 'Clarify',
+    description: 'Ask 3-5 questions to deepen your understanding',
     icon: MessageSquare,
-    prompt: 'Analyse le contenu précédent et identifie 3-5 questions clés qui permettraient de clarifier ou d\'approfondir les points essentiels. Formule chaque question de manière ouverte pour susciter des réponses détaillées.',
+    prompt: 'Analyze the previous content and identify 3-5 key questions that would help clarify or deepen the essential points. Formulate each question in an open-ended way to elicit detailed responses.',
     orchestration: {
       logicalRole: 'conversation',
     },
@@ -101,10 +100,10 @@ const RECOMMENDATIONS: Recommendation[] = [
   {
     id: 'summarizer',
     type: 'summarizer',
-    label: 'Résumer',
-    description: 'Synthétise les points clés en un résumé concis',
+    label: 'Summarize',
+    description: 'Synthesize key points into a concise summary',
     icon: FileText,
-    prompt: 'Synthétise le contenu précédent en un résumé structuré. Identifie les points clés, les idées principales et les conclusions importantes. Utilise des listes à puces pour faciliter la lecture.',
+    prompt: 'Synthesize the previous content into a structured summary. Identify key points, main ideas, and important conclusions. Use bullet points to facilitate reading.',
     orchestration: {
       logicalRole: 'conversation',
     },
@@ -113,9 +112,9 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 'challenger-soft',
     type: 'challenger-soft',
     label: 'Challenger (Soft)',
-    description: 'Questionne en douceur pour vérifier les hypothèses',
+    description: 'Gently question to verify assumptions',
     icon: Shield,
-    prompt: 'Pose des questions de réflexion douce et constructive pour vérifier les hypothèses et angles de vue. Cherche à identifier les points qui pourraient mériter un examen plus approfondi sans être critique.',
+    prompt: 'Ask gentle and constructive reflection questions to verify assumptions and perspectives. Seek to identify points that might deserve deeper examination without being critical.',
     orchestration: {
       logicalRole: 'challenger',
       challenger: { intensity: 'soft' },
@@ -125,9 +124,9 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 'challenger-medium',
     type: 'challenger-medium',
     label: 'Challenger (Medium)',
-    description: 'Interroge de manière équilibrée pour tester la solidité',
+    description: 'Question in a balanced way to test robustness',
     icon: Shield,
-    prompt: 'Pose des questions qui testent la solidité du raisonnement de manière équilibrée. Identifie les contradictions potentielles, les hypothèses non vérifiées et les alternatives possibles.',
+    prompt: 'Ask questions that test the robustness of reasoning in a balanced way. Identify potential contradictions, unverified assumptions, and possible alternatives.',
     orchestration: {
       logicalRole: 'challenger',
       challenger: { intensity: 'medium' },
@@ -137,9 +136,9 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 'challenger-hard',
     type: 'challenger-hard',
     label: 'Challenger (Hard)',
-    description: 'Critique de façon rigoureuse pour les faiblesses',
+    description: 'Critically examine for weaknesses',
     icon: Shield,
-    prompt: 'Effectue une critique rigoureuse en identifiant les faiblesses, contradictions et failles logiques. Sois direct mais constructif. Cherche à mettre en lumière les points vulnérables et les contre-arguments.',
+    prompt: 'Perform a rigorous critique by identifying weaknesses, contradictions, and logical flaws. Be direct but constructive. Seek to highlight vulnerable points and counterarguments.',
     orchestration: {
       logicalRole: 'challenger',
       challenger: { intensity: 'hard' },
@@ -148,10 +147,10 @@ const RECOMMENDATIONS: Recommendation[] = [
   {
     id: 'source',
     type: 'source',
-    label: 'Chercher une source',
-    description: 'Recherche des sources et citations pour étayer le contenu',
+    label: 'Find a source',
+    description: 'Search for sources and citations to support the content',
     icon: Search,
-    prompt: 'Identifie les sources pertinentes, références ou citations qui pourraient étayer ou nuancer le contenu. Si des affirmations spécifiques nécessitent des sources, indique-les avec précision pour qu\'elles puissent être vérifiées.',
+    prompt: 'Identify relevant sources, references, or citations that could support or nuance the content. If specific claims require sources, indicate them precisely so they can be verified.',
     orchestration: {
       logicalRole: 'source',
     },
@@ -159,10 +158,10 @@ const RECOMMENDATIONS: Recommendation[] = [
   {
     id: 'compare-branches',
     type: 'compare-branches',
-    label: 'Comparer branches',
-    description: 'Compare les différentes branches et perspectives',
+    label: 'Compare branches',
+    description: 'Compare different branches and perspectives',
     icon: GitBranch,
-    prompt: 'Analyse et compare les différentes branches ou perspectives présentées. Identifie les points de convergence, de divergence et les contradictions potentielles. Synthétise les forces de chaque approche.',
+    prompt: 'Analyze and compare the different branches or perspectives presented. Identify points of convergence, divergence, and potential contradictions. Synthesize the strengths of each approach.',
     orchestration: {
       logicalRole: 'conversation',
     },
@@ -175,7 +174,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 'codebase-search',
     type: 'codebase-search',
     label: 'Codebase search',
-    description: 'Recherche dans le codebase par mot-clé',
+    description: 'Search the codebase by keyword',
     icon: FileSearch,
     prompt: '',
     orchestration: {
@@ -186,7 +185,7 @@ const RECOMMENDATIONS: Recommendation[] = [
     id: 'codebase-index',
     type: 'codebase-index',
     label: 'Codebase index',
-    description: 'Indexe le codebase pour une référence rapide',
+    description: 'Index the codebase for quick reference',
     icon: Database,
     prompt: '',
     orchestration: {
@@ -197,16 +196,20 @@ const RECOMMENDATIONS: Recommendation[] = [
 
 export function CanvasFocusOverlay() {
   const focusModeNodeId = useStore((s) => s.ui.focusModeNodeId)
-  const setFocusModeNodeId = useStore((s) => s.setFocusModeNodeId)
   const nodes = useStore((s) => s.nodes)
   const createChildNode = useStore((s) => s.createChildNode)
   const updateNode = useStore((s) => s.updateNode)
   const startPlanScopeEdit = useStore((s) => s.startPlanScopeEdit)
+  const setFocusModeNodeId = useStore((s) => s.setFocusModeNodeId)
 
   const node = focusModeNodeId ? nodes.get(focusModeNodeId) : null
-  const { refreshPlanVersion, setActivePlanVersion, generateArtifactFromPlan, generateTodoFromPlan } = usePlanActions()
+  const refreshPlanVersion = useStore((s) => s.refreshPlanVersion)
+  const setActivePlanVersion = useStore((s) => s.setActivePlanVersion)
+  const generateArtifactFromPlan = useStore((s) => s.generateArtifactFromPlan)
+  const generateTodoFromPlan = useStore((s) => s.generateTodoFromPlan)
   const [isCreating, setIsCreating] = useState<string | null>(null)
   const [showPlanDiff, setShowPlanDiff] = useState(false)
+
   const [sourceForm, setSourceForm] = useState<SourceNodeData>({
     provenance: { kind: 'manual', uri: '' },
     excerpts: [],
@@ -242,7 +245,7 @@ export function CanvasFocusOverlay() {
     } else {
       setTodoForm({ items: [] })
     }
-  }, [focusModeNodeId, node])
+  }, [focusModeNodeId, node?.id, setSourceForm, setTodoForm])
 
   const handleClose = () => {
     setFocusModeNodeId(null)
@@ -260,6 +263,7 @@ export function CanvasFocusOverlay() {
       for (const question of questions) {
         const childId = createChildNode(focusModeNodeId, question, { logicalRole: 'conversation', mode: 'explore', modeSource: 'auto' })
         if (childId) {
+          window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId: childId } }))
           const event = new CustomEvent('node:generate', { detail: { nodeId: childId } })
           window.dispatchEvent(event)
         }
@@ -306,6 +310,7 @@ export function CanvasFocusOverlay() {
         })
 
         if (childId) {
+          window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId: childId } }))
           setFocusModeNodeId(childId)
         }
         return
@@ -320,6 +325,7 @@ export function CanvasFocusOverlay() {
         })
 
         if (childId) {
+          window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId: childId } }))
           setFocusModeNodeId(childId)
         }
         return
@@ -332,6 +338,7 @@ export function CanvasFocusOverlay() {
       )
 
       if (childId) {
+        window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId: childId } }))
         const event = new CustomEvent('node:generate', { detail: { nodeId: childId } })
         window.dispatchEvent(event)
       }
@@ -352,9 +359,9 @@ export function CanvasFocusOverlay() {
   const challengerIntensity = isChallengerNode ? getChallengerIntensity(node?.metadata) : null
 
   const riskReasons: string[] = []
-  if (!node?.prompt?.trim()) riskReasons.push('Prompt vide')
-  if (!node?.response?.trim()) riskReasons.push('Pas de réponse')
-  if ((node?.childrenIds?.length ?? 0) > 5) riskReasons.push('Beaucoup de branches')
+  if (!node?.prompt?.trim()) riskReasons.push('Empty prompt')
+  if (!node?.response?.trim()) riskReasons.push('No response')
+  if ((node?.childrenIds?.length ?? 0) > 5) riskReasons.push('Many branches')
 
   const availableRecommendations = RECOMMENDATIONS.filter(
     (rec) => !rec.condition || rec.condition(node ?? null)
@@ -384,7 +391,7 @@ export function CanvasFocusOverlay() {
             <button
               onClick={handleClose}
               className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-              title="Fermer (Escape)"
+              title="Close (Escape)"
             >
               <X className="w-5 h-5" />
             </button>
@@ -415,25 +422,25 @@ export function CanvasFocusOverlay() {
                         onClick={() => startPlanScopeEdit(node.id)}
                         disabled={node.status === 'loading'}
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title="Ajuster le scope du plan"
+                        title="Adjust plan scope"
                       >
-                        Ajuster scope
+                        Adjust scope
                       </button>
                       <button
                         onClick={() => generateTodoFromPlan(node.id)}
                         disabled={node.status === 'loading'}
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title="Générer des todos"
+                        title="Generate todos"
                       >
-                        Générer todos
+                        Generate todos
                       </button>
                       <button
                         onClick={() => generateArtifactFromPlan(node.id)}
                         disabled={node.status === 'loading'}
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                        title="Générer un artifact"
+                        title="Generate an artifact"
                       >
-                        Générer artifact
+                        Generate artifact
                       </button>
                     </div>
                   </div>
@@ -463,7 +470,7 @@ export function CanvasFocusOverlay() {
                         onClick={() => setShowPlanDiff((v) => !v)}
                         className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                       >
-                        {showPlanDiff ? 'Masquer diff' : 'Voir diff'}
+                        {showPlanDiff ? 'Hide diff' : 'Show diff'}
                       </button>
 
                       {showPlanDiff && (() => {
@@ -516,7 +523,7 @@ export function CanvasFocusOverlay() {
                        onClick={() => persistSource(sourceForm)}
                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                      >
-                       Sauvegarder
+                       Save
                      </button>
                    </div>
 
@@ -549,13 +556,13 @@ export function CanvasFocusOverlay() {
                              setSourceForm(next)
                            }}
                            className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-                           placeholder="https://... ou /path/to/file"
+                           placeholder="https://... or /path/to/file"
                          />
                        </div>
                      </div>
 
                      <div className="space-y-1">
-                       <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Titre</label>
+                       <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Title</label>
                        <input
                          value={sourceForm.provenance.title ?? ''}
                          onChange={(e) => {
@@ -563,13 +570,13 @@ export function CanvasFocusOverlay() {
                            setSourceForm(next)
                          }}
                          className="w-full px-2 py-1.5 text-sm rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-                         placeholder="Nom de la source"
+                         placeholder="Source name"
                        />
                      </div>
 
                      <div className="space-y-2">
                        <div className="flex items-center justify-between">
-                         <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Extraits</label>
+                         <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Excerpts</label>
                          <button
                            onClick={() => {
                              const next = {
@@ -580,7 +587,7 @@ export function CanvasFocusOverlay() {
                            }}
                            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
                          >
-                           + Ajouter
+                           + Add
                          </button>
                        </div>
 
@@ -588,7 +595,7 @@ export function CanvasFocusOverlay() {
                          {sourceForm.excerpts.map((ex, idx) => (
                            <div key={ex.id} className="space-y-1">
                              <div className="flex items-center justify-between">
-                               <span className="text-xs text-gray-500 dark:text-gray-400">Extrait {idx + 1}</span>
+                               <span className="text-xs text-gray-500 dark:text-gray-400">Excerpt {idx + 1}</span>
                                <button
                                  onClick={() => {
                                    const next = { ...sourceForm, excerpts: sourceForm.excerpts.filter((e) => e.id !== ex.id) }
@@ -596,7 +603,7 @@ export function CanvasFocusOverlay() {
                                  }}
                                  className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
                                >
-                                 Supprimer
+                                 Delete
                                </button>
                              </div>
                              <textarea
@@ -611,7 +618,7 @@ export function CanvasFocusOverlay() {
                                  setSourceForm(next)
                                }}
                                className="w-full min-h-[90px] px-2 py-1.5 text-sm rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-                               placeholder="Colle ici un extrait pertinent (avec citations/lines si possible)"
+                               placeholder="Paste a relevant excerpt here (with citations/lines if possible)"
                              />
                            </div>
                          ))}
@@ -619,7 +626,7 @@ export function CanvasFocusOverlay() {
                      </div>
 
                      <div className="space-y-1">
-                       <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Résumé (optionnel)</label>
+                       <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Summary (optional)</label>
                        <textarea
                          value={sourceForm.summary ?? ''}
                          onChange={(e) => {
@@ -627,7 +634,7 @@ export function CanvasFocusOverlay() {
                            setSourceForm(next)
                          }}
                          className="w-full min-h-[80px] px-2 py-1.5 text-sm rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-                         placeholder="Résumé de la source"
+                         placeholder="Source summary"
                        />
                      </div>
                    </div>
@@ -644,14 +651,14 @@ export function CanvasFocusOverlay() {
                        onClick={() => persistTodo(todoForm)}
                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                      >
-                       Sauvegarder
+                       Save
                      </button>
                    </div>
 
                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm space-y-3">
                      <div className="space-y-2">
                        {todoForm.items.length === 0 ? (
-                         <p className="text-sm text-gray-500 dark:text-gray-400 italic">Aucun todo</p>
+                         <p className="text-sm text-gray-500 dark:text-gray-400 italic">No todos</p>
                        ) : (
                          todoForm.items.map((item) => (
                            <div key={item.id} className="flex items-start gap-2">
@@ -709,7 +716,7 @@ export function CanvasFocusOverlay() {
                                 }}
                                 className="text-xs text-red-600 hover:text-red-700 dark:text-red-400"
                               >
-                                Supprimer
+                                Delete
                               </button>
 
                            </div>
@@ -728,7 +735,7 @@ export function CanvasFocusOverlay() {
                        }}
                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50"
                      >
-                       + Ajouter un todo
+                       + Add a todo
                      </button>
                    </div>
                  </div>
@@ -743,10 +750,10 @@ export function CanvasFocusOverlay() {
                       <button
                         onClick={async () => {
                           const preview = [
-                            'Cette action va créer un node résultat (jamais d\'exécution automatique).',
+                            'This action will create a result node (never automatic execution).',
                             '',
                             `type: ${actionData.actionType}`,
-                            `agent: ${actionData.assignment?.agentTypeId ?? '(non défini)'}`,
+                            `agent: ${actionData.assignment?.agentTypeId ?? '(not defined)'}`,
                             `model: ${actionData.assignment?.model ?? '(default)'}`,
                           ]
 
@@ -764,7 +771,7 @@ export function CanvasFocusOverlay() {
                             preview.push(`maxFiles: ${maxFiles}`)
                           }
 
-                          preview.push('', 'Continuer ?')
+                          preview.push('', 'Continue?')
 
                           const ok = window.confirm(preview.join('\n'))
                           if (!ok) return
@@ -1049,14 +1056,14 @@ export function CanvasFocusOverlay() {
                          onClick={handleCreateQuestions}
                          disabled={isCreating === 'challenger-questions' || node.status === 'loading'}
                          className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium rounded-md bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
-                         title="Créer des nodes enfants pour chaque question"
+                         title="Create child nodes for each question"
                        >
                          {isCreating === 'challenger-questions' ? (
                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                          ) : (
                            <Sparkles className="w-3.5 h-3.5" />
                          )}
-                         Créer questions ({extractQuestions(node.response).length})
+                         Create questions ({extractQuestions(node.response).length})
                        </button>
                      )}
                    </div>
@@ -1134,7 +1141,7 @@ export function CanvasFocusOverlay() {
               {!node.response && !node.prompt && (
                 <div className="flex items-center justify-center py-12">
                   <p className="text-gray-400 dark:text-gray-600 italic">
-                    Aucun contenu à afficher
+                    No content to display
                   </p>
                 </div>
               )}
@@ -1145,12 +1152,12 @@ export function CanvasFocusOverlay() {
                     <div className="flex items-center gap-2">
                       <Sparkles className="w-5 h-5 text-purple-500" />
                       <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Recommandations (Explore)
+                        Recommendations (Explore)
                       </h3>
                     </div>
                     {riskReasons.length > 0 && (
                       <span className="text-xs text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 px-2 py-1 rounded-md">
-                        Risques détectés: {riskReasons.slice(0, 2).join(' · ')}
+                        Risks detected: {riskReasons.slice(0, 2).join(' · ')}
                       </span>
                     )}
                   </div>

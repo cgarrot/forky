@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useCallback, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { Handle, Position, type NodeProps, type Node as FlowNode } from '@xyflow/react'
 import { Play, RefreshCw, X, AlertTriangle, Maximize, GitBranch, Hammer, ChevronDown, ChevronRight, MessageSquare, Sparkles } from 'lucide-react'
 import { useStore } from '@/lib/store'
@@ -10,17 +10,33 @@ import { NodeResponse } from './NodeResponse'
 import type { Node } from '@forky/shared'
 import { cn } from '@forky/shared'
 
-type CustomNodeType = FlowNode<{ node: Node }, 'custom'>
+type CustomNodeType = FlowNode<{ node: Node; branchColor?: string }, 'custom'>
 type CustomNodeProps = NodeProps<CustomNodeType>
 
 function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
-  const { node } = data
+  const { node, branchColor } = data
   const setFocusModeNodeId = useStore((s) => s.setFocusModeNodeId)
   const updateNodePrompt = useStore((s) => s.updateNodePrompt)
   const deleteNode = useStore((s) => s.deleteNode)
+  const promptFocusNodeId = useStore((s) => s.promptFocusNodeId)
+  const setPromptFocusNodeId = useStore((s) => s.setPromptFocusNodeId)
   const { startBuildFromNode } = useBuildActions()
   const [isPromptExpanded, setIsPromptExpanded] = useState(false)
   const [isResponseExpanded, setIsResponseExpanded] = useState(false)
+  const [shouldAutoFocusPrompt, setShouldAutoFocusPrompt] = useState(false)
+
+  useEffect(() => {
+    if (promptFocusNodeId !== id) return
+    setIsPromptExpanded(true)
+    setShouldAutoFocusPrompt(true)
+  }, [promptFocusNodeId, id])
+
+  const handlePromptAutoFocusDone = useCallback(() => {
+    if (promptFocusNodeId === id) {
+      setPromptFocusNodeId(null)
+    }
+    setShouldAutoFocusPrompt(false)
+  }, [promptFocusNodeId, id, setPromptFocusNodeId])
 
   const isLoading = node.status === 'loading'
   const isError = node.status === 'error'
@@ -42,6 +58,9 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
   const handlePromptChange = useCallback(
     (value: string) => {
       updateNodePrompt(id, value)
+      window.dispatchEvent(
+        new CustomEvent('node:ws-update', { detail: { nodeId: id, data: { prompt: value } } })
+      )
     },
     [id, updateNodePrompt]
   )
@@ -58,15 +77,16 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
 
   const handleDelete = useCallback(() => {
     deleteNode(id)
+    window.dispatchEvent(new CustomEvent('node:ws-delete', { detail: { nodeId: id } }))
   }, [id, deleteNode])
 
   const handleFocusMode = useCallback(() => {
     setFocusModeNodeId(id)
-  }, [id, setFocusModeNodeId])
+  }, [id])
 
   const handleBuild = useCallback(() => {
     startBuildFromNode(id)
-  }, [id, startBuildFromNode])
+  }, [id])
 
   const borderColor = cn(
     'border-2 transition-colors duration-200',
@@ -106,9 +126,17 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
       <div className="px-3 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">
-              {title}
-            </h3>
+            <div className="flex items-center gap-2">
+              {branchColor && (
+                <span
+                  className="inline-flex h-2.5 w-2.5 rounded-full"
+                  style={{ backgroundColor: branchColor }}
+                />
+              )}
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate leading-tight">
+                {title}
+              </h3>
+            </div>
             <div className="flex items-center gap-2 mt-1.5">
               {isLoading && (
                 <span className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
@@ -190,6 +218,8 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
                 onChange={handlePromptChange}
                 onGenerate={handleGenerate}
                 disabled={isLoading}
+                autoFocus={shouldAutoFocusPrompt}
+                onAutoFocusDone={handlePromptAutoFocusDone}
               />
             </div>
           )}

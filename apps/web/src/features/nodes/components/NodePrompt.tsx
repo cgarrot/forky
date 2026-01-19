@@ -9,9 +9,18 @@ interface NodePromptProps {
   onChange: (value: string) => void
   onGenerate: () => void
   disabled?: boolean
+  autoFocus?: boolean
+  onAutoFocusDone?: () => void
 }
 
-export function NodePrompt({ value, onChange, onGenerate, disabled }: NodePromptProps) {
+export function NodePrompt({
+  value,
+  onChange,
+  onGenerate,
+  disabled,
+  autoFocus,
+  onAutoFocusDone,
+}: NodePromptProps) {
   const [localValue, setLocalValue] = useState(value)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -27,6 +36,33 @@ export function NodePrompt({ value, onChange, onGenerate, disabled }: NodePrompt
   useEffect(() => {
     setLocalValue(value)
   }, [value])
+
+  useEffect(() => {
+    if (!autoFocus || disabled) return
+    const textarea = textareaRef.current
+    if (!textarea) return
+
+    let cancelled = false
+
+    const focus = () => {
+      if (cancelled) return
+
+      try {
+        textarea.focus()
+      } catch {
+        // Ignore focus errors on unmounted nodes.
+      }
+
+      onAutoFocusDone?.()
+    }
+
+    const timeoutId = window.setTimeout(focus, 0)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(timeoutId)
+    }
+  }, [autoFocus, disabled, onAutoFocusDone])
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setLocalValue(e.target.value)

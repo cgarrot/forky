@@ -41,12 +41,14 @@ export function useKeyboardShortcuts() {
         event.preventDefault()
         const centerX = (window.innerWidth / 2 - viewport.x) / viewport.zoom
         const centerY = (window.innerHeight / 2 - viewport.y) / viewport.zoom
-        addNode({ x: centerX, y: centerY })
+        const nodeId = addNode({ x: centerX, y: centerY })
+        window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId } }))
       }
 
       if (event.key === 'Delete' || event.key === 'Backspace') {
         selectedNodeIds.forEach((id) => {
           deleteNode(id)
+          window.dispatchEvent(new CustomEvent('node:ws-delete', { detail: { nodeId: id } }))
         })
       }
 

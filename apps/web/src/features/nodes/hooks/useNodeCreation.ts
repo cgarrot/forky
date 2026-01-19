@@ -9,13 +9,10 @@ export function useNodeCreation(projectId: string | null) {
   const updateNode = useStore((s) => s.updateNode)
   const deleteNode = useStore((s) => s.deleteNode)
 
-  const emitNodeCreated = useCallback(
-    (params: { projectId: string; prompt: string; position: { x: number; y: number } }) => {
-      const event = new CustomEvent('node:ws-create', { detail: params })
-      window.dispatchEvent(event)
-    },
-    []
-  )
+  const emitNodeCreated = useCallback((nodeId: string) => {
+    const event = new CustomEvent('node:ws-create', { detail: { nodeId } })
+    window.dispatchEvent(event)
+  }, [])
 
   const emitNodeDeleted = useCallback((nodeId: string) => {
     const event = new CustomEvent('node:ws-delete', { detail: { nodeId } })
@@ -28,9 +25,9 @@ export function useNodeCreation(projectId: string | null) {
   }, [])
 
   const handleNodeCreated = useCallback(
-    (params: { projectId: string; prompt: string; position: { x: number; y: number } }) => {
+    (nodeId: string) => {
       if (projectId) {
-        emitNodeCreated({ ...params })
+        emitNodeCreated(nodeId)
       }
     },
     [projectId, emitNodeCreated]
