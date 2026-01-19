@@ -221,7 +221,7 @@ export class NodesService {
     return {
       success: true,
       data: toProjectNode({ node: created, parentIds }),
-      message: 'Nœud créé avec succès',
+      message: 'Node created successfully',
     };
   }
 
@@ -294,7 +294,7 @@ export class NodesService {
     return {
       success: true,
       data: createdNodes,
-      message: `${createdNodes.length} nœuds créés avec succès`,
+      message: `${createdNodes.length} nodes created successfully`,
     };
   }
 
@@ -396,6 +396,11 @@ export class NodesService {
         }
       }
 
+      await tx.project.update({
+        where: { id: node.projectId },
+        data: { updatedAt: new Date() },
+      });
+
       return node;
     });
 
@@ -411,7 +416,7 @@ export class NodesService {
     return {
       success: true,
       data: toProjectNode({ node: updated, parentIds: finalParentIds }),
-      message: 'Nœud mis à jour',
+      message: 'Node updated',
     };
   }
 

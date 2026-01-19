@@ -160,7 +160,7 @@ export class NodeGenerationService {
         status: 'GENERATING' as NodeStatus,
         startedAt: new Date().toISOString(),
       },
-      message: 'Génération démarrée',
+      message: 'Generation started',
     };
   }
 
@@ -195,7 +195,7 @@ export class NodeGenerationService {
         status: 'IDLE' as NodeStatus,
         cancelledAt: new Date().toISOString(),
       },
-      message: 'Génération annulée',
+      message: 'Generation cancelled',
     };
   }
 
@@ -221,7 +221,7 @@ export class NodeGenerationService {
           affectedNodes: [],
           totalAffected: 0,
         },
-        message: 'Cascade update démarré',
+        message: 'Cascade update started',
       };
     }
 
@@ -404,7 +404,7 @@ export class NodeGenerationService {
       const result = streamText({
         model,
         system:
-          'Tu es un expert en synthèse. Crée un résumé ultra-concis (1 phrase) en français.',
+          'You are an expert in synthesis. Create an ultra-concise summary (1 sentence) in English.',
         messages: [{ role: 'user', content }],
         temperature: 0.3,
         maxOutputTokens: 80,
@@ -450,7 +450,7 @@ export class NodeGenerationService {
           where: { id: parentId, deletedAt: null },
         });
         const ctx = await this.buildParentContext(parentId, node.projectId);
-        const label = parentNode?.prompt?.slice(0, 30) || `Branche ${i + 1}`;
+        const label = parentNode?.prompt?.slice(0, 30) || `Branch ${i + 1}`;
         const contextText = ctx
           .map(
             (m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`,
@@ -459,7 +459,7 @@ export class NodeGenerationService {
 
         messages.push({
           role: 'user',
-          content: `--- Contexte ${label} ---\n${contextText}`,
+          content: `--- Context ${label} ---\n${contextText}`,
         });
       }
     }
@@ -497,7 +497,7 @@ export class NodeGenerationService {
           where: { id: parentId, deletedAt: null, projectId },
         });
         const ctx = await this.buildParentContext(parentId, projectId);
-        const label = parentNode?.prompt?.slice(0, 30) || `Branche ${i + 1}`;
+        const label = parentNode?.prompt?.slice(0, 30) || `Branch ${i + 1}`;
         const contextText = ctx
           .map(
             (m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`,
@@ -506,7 +506,7 @@ export class NodeGenerationService {
 
         messages.push({
           role: 'user',
-          content: `--- Contexte ${label} ---\n${contextText}`,
+          content: `--- Context ${label} ---\n${contextText}`,
         });
       }
     }

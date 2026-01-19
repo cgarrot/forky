@@ -31,6 +31,7 @@ export type UpdateNodeBody = Partial<{
   summary: string | null
   status: string
   position: NodePosition
+  parentIds: string[]
   metadata: Record<string, unknown>
 }>
 
