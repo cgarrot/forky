@@ -95,12 +95,14 @@ export function ProjectList() {
 
   const formatDate = (iso: string) => {
     const date = new Date(iso)
+    if (Number.isNaN(date.getTime())) return ''
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
 
-    if (days === 0) return "Aujourd'hui"
-    if (days === 1) return 'Hier'
+    if (days === 0) return `Aujourd'hui ${time}`
+    if (days === 1) return `Hier ${time}`
     if (days < 7) return `Il y a ${days} jours`
     return date.toLocaleDateString('fr-FR')
   }

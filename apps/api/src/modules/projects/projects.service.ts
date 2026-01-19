@@ -105,7 +105,7 @@ export class ProjectsService {
       if (existing >= 1) {
         throw new ConflictException({
           code: 'GUEST_PROJECT_LIMIT',
-          message: "Un invité ne peut créer qu'un seul projet",
+          message: 'A guest can only create one project',
         });
       }
     }
@@ -118,7 +118,7 @@ export class ProjectsService {
           data: {
             name: input.name,
             description: input.description,
-            systemPrompt: input.systemPrompt ?? 'Tu es un assistant utile.',
+            systemPrompt: input.systemPrompt ?? 'You are a helpful assistant.',
             isPublic: input.isPublic ?? false,
             shareToken,
             viewport: input.viewport
@@ -149,7 +149,7 @@ export class ProjectsService {
         return {
           success: true,
           data: this.mapToEntity(project),
-          message: 'Projet créé avec succès',
+          message: 'Project created successfully',
         };
       } catch (error) {
         if (
@@ -232,7 +232,7 @@ export class ProjectsService {
       return {
         success: true,
         data: this.mapToEntity(updated),
-        message: 'Projet mis à jour',
+        message: 'Project updated',
       };
     } catch (error) {
       if (
@@ -252,7 +252,7 @@ export class ProjectsService {
         data: { deletedAt: new Date() },
       });
 
-      return { success: true, message: 'Projet supprimé' };
+      return { success: true, message: 'Project deleted' };
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -357,7 +357,7 @@ export class ProjectsService {
       return {
         success: true,
         data: this.mapToMemberEntity(created),
-        message: 'Utilisateur invité avec succès',
+        message: 'User invited successfully',
       };
     } catch (error) {
       if (
@@ -452,7 +452,7 @@ export class ProjectsService {
         role: updated.role,
         joinedAt: updated.joinedAt.toISOString(),
       },
-      message: 'Rôle mis à jour',
+      message: 'Role updated',
     };
   }
 

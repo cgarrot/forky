@@ -11,7 +11,8 @@ export function NewNodeButton() {
     const centerX = (window.innerWidth / 2 - viewport.x) / viewport.zoom
     const centerY = (window.innerHeight / 2 - viewport.y) / viewport.zoom
 
-    addNode({ x: centerX, y: centerY })
+    const nodeId = addNode({ x: centerX, y: centerY })
+    window.dispatchEvent(new CustomEvent('node:ws-create', { detail: { nodeId } }))
   }
 
   return (

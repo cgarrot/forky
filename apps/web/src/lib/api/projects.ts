@@ -20,6 +20,7 @@ export type ProjectApi = {
   isPublic: boolean
   nodeCount: number
   memberCount: number
+  shareToken?: string | null
   viewport: Viewport
   quickActions?: QuickAction[] | null
   createdAt: string

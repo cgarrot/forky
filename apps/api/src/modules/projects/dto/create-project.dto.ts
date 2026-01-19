@@ -13,19 +13,19 @@ import { ProjectViewportDto } from './shared/project-viewport.dto';
 import { QuickActionDto } from './shared/quick-action.dto';
 
 export class CreateProjectDto {
-  @ApiProperty({ example: 'Projet sans titre' })
+  @ApiProperty({ example: 'Untitled project' })
   @IsString()
   @MinLength(1)
   @MaxLength(100)
   name!: string;
 
-  @ApiPropertyOptional({ example: 'Description du projet' })
+  @ApiPropertyOptional({ example: 'Project description' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   description?: string;
 
-  @ApiPropertyOptional({ example: 'Tu es un assistant utile.' })
+  @ApiPropertyOptional({ example: 'You are a helpful assistant.' })
   @IsOptional()
   @IsString()
   @MaxLength(2000)

@@ -73,9 +73,62 @@ export function useProjects() {
     }
   }, [])
 
+  const touchProject = useCallback((projectId: string, updatedAt: string) => {
+    setProjects((prev) => {
+      let changed = false
+      const next = prev.map((project) => {
+        if (project.id !== projectId) return project
+        if (project.updatedAt === updatedAt) return project
+        changed = true
+        return { ...project, updatedAt }
+      })
+
+      if (!changed) return prev
+
+      return next.sort(
+        (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+    })
+  }, [])
+
   useEffect(() => {
     void refreshProjects()
   }, [refreshProjects])
+
+  useEffect(() => {
+    const touchCurrentProject = () => {
+      if (!currentProjectId) return
+      touchProject(currentProjectId, new Date().toISOString())
+    }
+
+    const handleProjectTouch = (event: Event) => {
+      const detail = (event as CustomEvent<{ projectId?: string; updatedAt?: string }>).detail
+      if (!detail?.projectId) return
+      const updatedAt = detail.updatedAt ?? new Date().toISOString()
+      touchProject(detail.projectId, updatedAt)
+    }
+
+    const handleProjectSaved = (event: Event) => {
+      const detail = (event as CustomEvent<{ id?: string; savedAt?: string }>).detail
+      if (!detail?.id) return
+      const updatedAt = detail.savedAt ?? new Date().toISOString()
+      touchProject(detail.id, updatedAt)
+    }
+
+    window.addEventListener('project:touch', handleProjectTouch)
+    window.addEventListener('project:saved', handleProjectSaved)
+    window.addEventListener('node:ws-update', touchCurrentProject)
+    window.addEventListener('node:ws-create', touchCurrentProject)
+    window.addEventListener('node:ws-delete', touchCurrentProject)
+
+    return () => {
+      window.removeEventListener('project:touch', handleProjectTouch)
+      window.removeEventListener('project:saved', handleProjectSaved)
+      window.removeEventListener('node:ws-update', touchCurrentProject)
+      window.removeEventListener('node:ws-create', touchCurrentProject)
+      window.removeEventListener('node:ws-delete', touchCurrentProject)
+    }
+  }, [currentProjectId, touchProject])
 
   const loadProjectById = useCallback(
     async (projectId: string) => {

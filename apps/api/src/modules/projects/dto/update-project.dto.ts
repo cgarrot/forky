@@ -13,20 +13,20 @@ import { ProjectViewportDto } from './shared/project-viewport.dto';
 import { QuickActionDto } from './shared/quick-action.dto';
 
 export class UpdateProjectDto {
-  @ApiPropertyOptional({ example: 'Nouveau nom' })
+  @ApiPropertyOptional({ example: 'New name' })
   @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(100)
   name?: string;
 
-  @ApiPropertyOptional({ example: 'Nouvelle description' })
+  @ApiPropertyOptional({ example: 'New description' })
   @IsOptional()
   @IsString()
   @MaxLength(500)
   description?: string;
 
-  @ApiPropertyOptional({ example: 'Tu es un assistant utile.' })
+  @ApiPropertyOptional({ example: 'You are a helpful assistant.' })
   @IsOptional()
   @IsString()
   @MaxLength(2000)

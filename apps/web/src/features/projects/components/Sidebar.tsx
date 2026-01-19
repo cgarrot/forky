@@ -28,7 +28,7 @@ export function Sidebar() {
             <h1 className={cn(
               "text-lg font-bold text-gray-900 dark:text-white",
               sidebarOpen ? "block" : "hidden"
-            )}>NonLinear</h1>
+            )}>forky</h1>
           </div>
           <button
             onClick={toggleSidebar}
@@ -67,7 +67,7 @@ export function Sidebar() {
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-800">
           <p className="text-xs text-gray-400 text-center">
-            NonLinear v1.0
+            forky v1.0
           </p>
         </div>
       </aside>
