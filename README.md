@@ -1,8 +1,8 @@
-# Forky 🚀
+# forky 🚀
 
 > Plateforme d'exploration non-linéaire des idées propulsée par l'IA
 
-Forky est une application moderne de brainstorming qui permet de créer des graphes de nœuds connectés avec génération LLM en temps réel. Construite avec une architecture hybride (Atomic Design + Feature-Based) pour une scalabilité maximale.
+forky est une application moderne de brainstorming qui permet de créer des graphes de nœuds connectés avec génération LLM en temps réel. Construite avec une architecture hybride (Atomic Design + Feature-Based) pour une scalabilité maximale.
 
 ## 🎨 Caractéristiques
 
@@ -16,7 +16,7 @@ Forky est une application moderne de brainstorming qui permet de créer des grap
 
 ## 🏗️ Architecture
 
-Forky utilise une architecture **monorepo hybride** combinant :
+forky utilise une architecture **monorepo hybride** combinant :
 
 - **Atomic Design** via `packages/ui` - Design system cohérent et réutilisable
 - **Feature-Based Architecture** via `apps/web/src/features` - Logique métier organisée par fonctionnalité
@@ -24,7 +24,7 @@ Forky utilise une architecture **monorepo hybride** combinant :
 ### Structure du projet
 
 ```
-forky-v1/
+forky/
 ├── apps/
 │   ├── web/                    # Frontend Next.js 15
 │   │   └── src/
@@ -152,8 +152,8 @@ Les contributions sont les bienvenues ! Veuillez consulter [CONTRIBUTING.md](./C
 
 ## 📄 Licence
 
-MIT © Forky Team
+MIT © forky Team
 
 ---
 
-**Forky v0.1.0** - Créé avec ❤️ par l'équipe Forky
+**forky v0.1.0** - Créé avec ❤️ par l'équipe forky
