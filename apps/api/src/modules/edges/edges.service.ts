@@ -101,7 +101,7 @@ export class EdgesService {
       return {
         success: true,
         data: this.toProjectEdge(created),
-        message: 'Liaison créée avec succès',
+        message: 'Edge created successfully',
       };
     } catch (error) {
       if (error instanceof Error && 'code' in error) {

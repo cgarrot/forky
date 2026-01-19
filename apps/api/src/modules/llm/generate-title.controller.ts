@@ -16,16 +16,16 @@ export class GenerateTitleController {
     const modelId = dto.model ?? 'glm-4.7';
 
     const systemPrompt =
-      'Tu es un expert en création de titres courts et accrocheurs.\n\n' +
-      'RÈGLES IMPORTANTES :\n' +
-      '1. Génère UN titre court et descriptif en français (5-10 mots maximum).\n' +
-      "2. Le titre doit capturer l'essence du contenu.\n" +
-      "3. Évite les mots génériques comme 'Projet', 'Analyse', 'Étude'.\n" +
-      '4. Utilise un vocabulaire précis et professionnel.\n' +
-      '5. Commence par une majuscule et ne mets pas de point final.\n\n' +
-      'OBJECTIF : Créer un titre concis qui résume parfaitement le sujet traité.';
+      'You are an expert in creating short and catchy titles.\n\n' +
+      'IMPORTANT RULES:\n' +
+      '1. Generate ONE short and descriptive title in English (5-10 words maximum).\n' +
+      '2. The title must capture the essence of the content.\n' +
+      "3. Avoid generic words like 'Project', 'Analysis', 'Study'.\n" +
+      '4. Use precise and professional vocabulary.\n' +
+      '5. Start with a capital letter and do not add a period.\n\n' +
+      'OBJECTIVE: Create a concise title that perfectly summarizes the subject matter.';
 
-    const userPrompt = `Génère un titre court et descriptif (5-10 mots maximum) en français pour ce contenu :\n\nPrompt: ${dto.prompt}\n\nRéponse: ${dto.response}`;
+    const userPrompt = `Generate a short and descriptive title (5-10 words maximum) in English for this content:\n\nPrompt: ${dto.prompt}\n\nResponse: ${dto.response}`;
 
     const model = this.llm.getModel(modelId) as StreamTextModel;
 
@@ -47,7 +47,7 @@ export class GenerateTitleController {
       data: {
         title: title.trim(),
       },
-      message: 'Titre généré',
+      message: 'Title generated',
     };
   }
 }

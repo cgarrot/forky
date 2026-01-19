@@ -27,18 +27,18 @@ export async function POST(request: Request) {
     }
 
     const systemPrompt =
-      "Tu es un expert en synthèse. Ton but est de créer un résumé ultra-concis d'un texte structuré.\n\n" +
-      'RÈGLES IMPORTANTES :\n' +
-      '1. Commence par UNE SEULE phrase très courte (15-20 mots max) qui donne le contexte principal du texte.\n' +
-      '2. Garde EXACTEMENT la même structure que le texte original (points numérotés, sections, sous-sections).\n' +
-      '3. Réduis chaque point à son essence absolue (1-2 phrases maximum par point).\n' +
-      '4. Supprime les exemples, les explications détaillées et le remplissage.\n' +
-      '5. Garde les titres et sous-titres originaux mais rends-les ultra-courts.\n' +
-      '6. Résume les idées en gardant le vocabulaire clé.\n\n' +
-      "OBJECTIF : Transformer un texte de 4000+ caractères en un résumé qui conserve la structure et les idées clés, avec une phrase de contexte initiale.\n" +
-      "Exemple de phrase introductive : 'Transformer un profil d'architecte en modèle viable'"
+      "You are a synthesis expert. Your goal is to create an ultra-concise summary of a structured text.\n\n" +
+      'IMPORTANT RULES:\n' +
+      '1. Start with ONE very short sentence (15-20 words max) that gives the main context of the text.\n' +
+      '2. Keep EXACTLY the same structure as the original text (numbered points, sections, subsections).\n' +
+      '3. Reduce each point to its absolute essence (1-2 sentences maximum per point).\n' +
+      '4. Remove examples, detailed explanations, and filler.\n' +
+      '5. Keep original titles and subtitles but make them ultra-short.\n' +
+      '6. Summarize ideas while keeping key vocabulary.\n\n' +
+      "OBJECTIVE: Transform a 4000+ character text into a summary that preserves the structure and key ideas, with an initial context sentence.\n" +
+      "Example introductory sentence: 'Transform an architect profile into a viable model'"
 
-    const userPrompt = `Résume ce texte :\n\n${content}`
+    const userPrompt = `Summarize this text:\n\n${content}`
 
     const result = streamText({
       model: provider,
@@ -59,15 +59,15 @@ export async function POST(request: Request) {
 
     let userMessage = errorMessage
     if (errorMessage?.includes('API key')) {
-      userMessage = 'Clé API invalide ou manquante. Vérifiez votre fichier .env.local'
+      userMessage = 'Invalid or missing API key. Check your .env.local file'
     } else if (errorMessage?.includes('401')) {
-      userMessage = "Erreur d'authentification. Vérifiez vos clés API."
+      userMessage = 'Authentication error. Check your API keys.'
     } else if (errorMessage?.includes('429')) {
-      userMessage = 'Limite de taux dépassée. Attendez quelques secondes et réessayez.'
+      userMessage = 'Rate limit exceeded. Wait a few seconds and try again.'
     } else if (errorMessage?.includes('timeout') || errorMessage?.includes('ECONNREFUSED')) {
-      userMessage = 'Erreur de connexion. Vérifiez votre connexion internet.'
+      userMessage = 'Connection error. Check your internet connection.'
     } else {
-      userMessage = 'Erreur de génération du résumé.'
+      userMessage = 'Summary generation error.'
     }
 
     return new Response(JSON.stringify({ error: userMessage }), {

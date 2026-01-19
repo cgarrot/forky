@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       }
       return new Response(
         JSON.stringify({
-          error: `Clé API ${providerNames[modelConfig.provider]} non configurée. Ajoutez la clé API dans votre fichier .env.local`,
+          error: `${providerNames[modelConfig.provider]} API key not configured. Add the API key to your .env.local file`,
         }),
         {
           status: 500,
@@ -76,15 +76,15 @@ export async function POST(request: Request) {
 
     let userMessage = errorMessage
     if (errorMessage?.includes('API key')) {
-      userMessage = 'Clé API invalide ou manquante. Vérifiez votre fichier .env.local'
+      userMessage = 'Invalid or missing API key. Check your .env.local file'
     } else if (errorMessage?.includes('401')) {
-      userMessage = "Erreur d'authentification. Vérifiez vos clés API."
+      userMessage = 'Authentication error. Check your API keys.'
     } else if (errorMessage?.includes('429')) {
-      userMessage = 'Limite de taux dépassée. Attendez quelques secondes et réessayez.'
+      userMessage = 'Rate limit exceeded. Wait a few seconds and try again.'
     } else if (errorMessage?.includes('timeout') || errorMessage?.includes('ECONNREFUSED')) {
-      userMessage = 'Erreur de connexion. Vérifiez votre connexion internet.'
+      userMessage = 'Connection error. Check your internet connection.'
     } else {
-      userMessage = 'Erreur de génération. Veuillez réessayer.'
+      userMessage = 'Generation error. Please try again.'
     }
 
     return new Response(JSON.stringify({ error: userMessage }), {
