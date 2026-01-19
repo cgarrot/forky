@@ -3,8 +3,8 @@ import Link from 'next/link'
 export default function NotFound() {
   return (
     <div>
-      <p>Page non trouvée.</p>
-      <Link href="/">Retour accueil</Link>
+      <p>Page not found.</p>
+      <Link href="/">Back to home</Link>
     </div>
   )
 }

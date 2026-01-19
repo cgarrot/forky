@@ -63,19 +63,19 @@ export function SaveIndicator() {
     const diff = now.getTime() - date.getTime()
     const seconds = Math.floor(diff / 1000)
 
-    if (seconds < 60) return "À l'instant"
+    if (seconds < 60) return "Just now"
     const minutes = Math.floor(seconds / 60)
-    if (minutes < 60) return `Il y a ${minutes} min`
+    if (minutes < 60) return `${minutes} min ago`
     const hours = Math.floor(minutes / 60)
-    if (hours < 24) return `Il y a ${hours}h`
-    return date.toLocaleDateString('fr-FR')
+    if (hours < 24) return `${hours}h ago`
+    return date.toLocaleDateString('en-US')
   }
 
   const statusConfig = {
     idle: {
       icon: CloudOff,
       className: 'text-gray-400',
-      text: lastSaved ? formatTime(lastSaved) : 'Non sauvegardé',
+      text: lastSaved ? formatTime(lastSaved) : 'Not saved',
     },
     saving: {
       icon: Loader2,
@@ -85,7 +85,7 @@ export function SaveIndicator() {
     saved: {
       icon: Cloud,
       className: 'text-green-500',
-      text: lastSaved ? `Sauvegardé (${formatTime(lastSaved)})` : 'Sauvegardé',
+      text: lastSaved ? `Saved (${formatTime(lastSaved)})` : 'Saved',
     },
     error: {
       icon: CloudOff,

@@ -39,8 +39,8 @@ export function Sidebar() {
     if (!currentProjectId) {
       showToast({
         type: 'warning',
-        title: 'Aucun projet ouvert',
-        message: 'Ouvre un projet pour partager le lien.',
+        title: 'No project open',
+        message: 'Open a project to share the link.',
       })
       return
     }
@@ -56,8 +56,8 @@ export function Sidebar() {
         if (!shareToken) {
           showToast({
             type: 'error',
-            title: 'Lien indisponible',
-            message: 'Ce projet n’a pas de lien de partage.',
+            title: 'Link unavailable',
+            message: 'This project does not have a share link.',
           })
           return
         }
@@ -65,8 +65,8 @@ export function Sidebar() {
         if (typeof window === 'undefined') {
           showToast({
             type: 'error',
-            title: 'Lien indisponible',
-            message: 'Impossible de générer le lien.',
+            title: 'Link unavailable',
+            message: 'Unable to generate the link.',
           })
           return
         }
@@ -91,14 +91,14 @@ export function Sidebar() {
 
       showToast({
         type: 'success',
-        title: 'Lien copié',
-        message: 'Partage-le pour rejoindre le projet.',
+        title: 'Link copied',
+        message: 'Share it to join the project.',
       })
     } catch {
       showToast({
         type: 'error',
-        title: 'Copie impossible',
-        message: 'Réessaie dans un instant.',
+        title: 'Copy failed',
+        message: 'Please try again in a moment.',
       })
     } finally {
       setIsCopying(false)
@@ -109,8 +109,8 @@ export function Sidebar() {
     if (!hasNodes) {
       showToast({
         type: 'warning',
-        title: 'Rien à ranger',
-        message: 'Ajoute quelques nodes avant de ranger.',
+        title: 'Nothing to organize',
+        message: 'Add some nodes before organizing.',
       })
       return
     }
@@ -131,8 +131,8 @@ export function Sidebar() {
       if (!positions.length) {
         showToast({
           type: 'warning',
-          title: 'Rien à ranger',
-          message: 'Ajoute quelques nodes avant de ranger.',
+          title: 'Nothing to organize',
+          message: 'Add some nodes before organizing.',
         })
         return
       }
@@ -160,14 +160,14 @@ export function Sidebar() {
 
       showToast({
         type: 'success',
-        title: 'Nodes rangés',
-        message: 'La vue a été réorganisée.',
+        title: 'Nodes organized',
+        message: 'The view has been reorganized.',
       })
     } catch {
       showToast({
         type: 'error',
-        title: 'Erreur',
-        message: 'Impossible de réorganiser les nodes.',
+        title: 'Error',
+        message: 'Unable to reorganize the nodes.',
       })
     } finally {
       setIsTidying(false)
@@ -175,9 +175,9 @@ export function Sidebar() {
   }, [edges, hasNodes, nodes, showToast, updateNode])
 
   const shareTitle = currentProjectId
-    ? 'Copier le lien de partage'
-    : 'Ouvre un projet pour partager'
-  const tidyTitle = hasNodes ? 'Ranger les nodes' : 'Ajoute des nodes pour ranger'
+    ? 'Copy share link'
+    : 'Open a project to share'
+  const tidyTitle = hasNodes ? 'Organize nodes' : 'Add nodes to organize'
 
   return (
     <>

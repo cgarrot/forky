@@ -33,7 +33,7 @@ export function Sidebar() {
           <button
             onClick={toggleSidebar}
             className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors shrink-0"
-            title={sidebarOpen ? "Réduire la barre latérale" : "Agrandir la barre latérale"}
+            title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
             {sidebarOpen ? (
               <ChevronLeft className="w-5 h-5 text-gray-500 dark:text-gray-400" />

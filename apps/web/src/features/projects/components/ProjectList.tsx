@@ -28,7 +28,7 @@ export function ProjectList() {
 
   const handleDeleteProject = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce projet ?')) {
+    if (!confirm('Are you sure you want to delete this project?')) {
       return
     }
 
@@ -99,25 +99,25 @@ export function ProjectList() {
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    const time = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    const time = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
 
-    if (days === 0) return `Aujourd'hui ${time}`
-    if (days === 1) return `Hier ${time}`
-    if (days < 7) return `Il y a ${days} jours`
-    return date.toLocaleDateString('fr-FR')
+    if (days === 0) return `Today ${time}`
+    if (days === 1) return `Yesterday ${time}`
+    if (days < 7) return `${days} days ago`
+    return date.toLocaleDateString('en-US')
   }
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          Projets ({projects.length})
+          Projects ({projects.length})
         </h3>
         <div className="flex gap-1">
           <button
             onClick={() => fileInputRef.current?.click()}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            title="Importer un projet"
+            title="Import a project"
             type="button"
           >
             <Upload className="w-4 h-4" />
@@ -130,7 +130,7 @@ export function ProjectList() {
           type="text"
           value={currentProjectName}
           onChange={(e) => setCurrentProjectName(e.target.value)}
-          placeholder="Nom du projet..."
+          placeholder="Project name..."
           className="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -146,11 +146,11 @@ export function ProjectList() {
       {projects.length === 0 ? (
         <div className="space-y-2">
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-            Aucun projet sauvegardé
+            No saved projects
           </p>
           <div className="space-y-2">
             <p className="text-xs text-gray-400 dark:text-gray-500">
-              Créez un nœud pour commencer. Le projet sera sauvegardé automatiquement.
+              Create a node to get started. The project will be saved automatically.
             </p>
           </div>
         </div>
@@ -172,7 +172,7 @@ export function ProjectList() {
                   {formatDate(project.updatedAt)}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
-                  {project.nodeCount} nœud{project.nodeCount !== 1 ? 's' : ''}
+                  {project.nodeCount} node{project.nodeCount !== 1 ? 's' : ''}
                 </p>
               </div>
 
@@ -180,7 +180,7 @@ export function ProjectList() {
                 <button
                   onClick={(e) => void handleExportJson(project.id, e)}
                   className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-                  title="Exporter JSON"
+                  title="Export JSON"
                   type="button"
                 >
                   <Download className="w-4 h-4" />
@@ -188,7 +188,7 @@ export function ProjectList() {
                 <button
                   onClick={(e) => void handleExportMarkdown(project.id, e)}
                   className="p-1 text-gray-400 hover:text-blue-500 transition-colors"
-                  title="Exporter Markdown"
+                  title="Export Markdown"
                   type="button"
                 >
                   <FileText className="w-4 h-4" />
@@ -196,7 +196,7 @@ export function ProjectList() {
                 <button
                   onClick={(e) => void handleDeleteProject(project.id, e)}
                   className="p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  title="Supprimer"
+                  title="Delete"
                   type="button"
                 >
                   <Trash2 className="w-4 h-4" />

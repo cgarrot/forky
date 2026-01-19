@@ -22,13 +22,13 @@ export default function ShareJoinPage() {
         const redirectUrl = `/api/guest/join/redirect?token=${encodeURIComponent(token)}`
         window.location.assign(redirectUrl)
       } catch {
-        setError('Impossible de rejoindre ce projet')
+        setError('Unable to join this project')
       }
     }
 
     const errorParam = searchParams.get('error')
     if (errorParam) {
-      setError(errorParam === 'invalid_token' ? 'Lien invalide' : 'Impossible de rejoindre ce projet')
+      setError(errorParam === 'invalid_token' ? 'Invalid link' : 'Unable to join this project')
       return
     }
 
@@ -44,5 +44,5 @@ export default function ShareJoinPage() {
     return <div>{error}</div>
   }
 
-  return <div>Chargement...</div>
+  return <div>Loading...</div>
 }

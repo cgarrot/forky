@@ -56,7 +56,7 @@ export function CreationMenu({
     >
       <div className="flex items-center justify-between px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
         <span className="text-sm font-semibold text-gray-900 dark:text-white">
-          Créer un nœud
+          Create a node
         </span>
         <button
           onClick={onClose}
@@ -79,10 +79,10 @@ export function CreationMenu({
           </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
-              Nœud vide
+              Empty node
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              Crée un nœud sans prompt
+              Creates a node without a prompt
             </div>
           </div>
         </button>
@@ -99,7 +99,7 @@ export function CreationMenu({
           </div>
           <div>
             <div className="text-sm font-medium text-gray-900 dark:text-white">
-              Nœud avec prompt
+              Node with prompt
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Ouvre le prompt dans la carte
@@ -110,7 +110,7 @@ export function CreationMenu({
         {quickActions.length > 0 && (
           <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
             <div className="text-xs font-medium text-gray-500 dark:text-gray-400 px-3 pb-1">
-              Actions rapides
+              Quick actions
             </div>
             {quickActions.slice(0, 3).map((action) => (
               <button
@@ -142,8 +142,8 @@ export function CreationMenu({
         <div className="px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border-t border-blue-200 dark:border-blue-800">
           <p className="text-xs text-blue-600 dark:text-blue-400">
             {quickActions.length > 3
-              ? `Plus de ${quickActions.length - 3} actions disponibles`
-              : 'Relié au nœud sélectionné'}
+              ? `${quickActions.length - 3} more actions available`
+              : 'Linked to selected node'}
           </p>
         </div>
       )}

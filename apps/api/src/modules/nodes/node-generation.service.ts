@@ -244,7 +244,7 @@ export class NodeGenerationService {
         })),
         totalAffected: descendants.length,
       },
-      message: 'Cascade update démarré',
+      message: 'Cascade update started',
     };
   }
 

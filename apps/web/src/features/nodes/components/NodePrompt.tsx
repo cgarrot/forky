@@ -86,7 +86,7 @@ export function NodePrompt({
           value={localValue}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Posez votre question ici... (Ctrl+Enter pour générer)"
+          placeholder="Ask your question here... (Ctrl+Enter to generate)"
           disabled={disabled}
           rows={1}
           className={cn(
@@ -105,7 +105,7 @@ export function NodePrompt({
               ? 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'
               : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
           )}
-          title="Générer (Ctrl+Enter)"
+          title="Generate (Ctrl+Enter)"
         >
           <Send className="w-4 h-4" />
         </button>
@@ -113,7 +113,7 @@ export function NodePrompt({
 
       {localValue.length > 0 && (
         <div className="mt-1 text-xs text-gray-400 dark:text-gray-600 text-right">
-          {localValue.length} caractère{localValue.length !== 1 ? 's' : ''}
+          {localValue.length} character{localValue.length !== 1 ? 's' : ''}
         </div>
       )}
     </div>

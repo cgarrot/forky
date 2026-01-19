@@ -14,11 +14,11 @@ export default function GlobalError({
   }, [error])
 
   return (
-    <html lang="fr">
+    <html lang="en">
       <body>
-        <p>Une erreur est survenue.</p>
+        <p>An error occurred.</p>
         <button type="button" onClick={reset}>
-          Réessayer
+          Try again
         </button>
       </body>
     </html>

@@ -15,8 +15,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "forky - Plateforme d'exploration non-linéaire",
-  description: "Explorez vos idées de manière non-linéaire avec une interface basée sur des nœuds",
+  title: "forky - Non-linear exploration platform",
+  description: "Explore your ideas in a non-linear way with a node-based interface",
 };
 
 export default function RootLayout({
@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="dark" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 dark:bg-gray-950`}
         suppressHydrationWarning

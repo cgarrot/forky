@@ -19,11 +19,11 @@ export default function ProjectError({
     <AppLayout>
       <div className="flex h-full items-center justify-center">
         <div className="space-y-4 text-center">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">Une erreur est survenue</div>
+          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">An error occurred</div>
           <div className="flex items-center justify-center gap-3">
-            <Button onClick={reset}>Réessayer</Button>
+            <Button onClick={reset}>Try again</Button>
             <Link href="/projects">
-              <Button variant="secondary">Projets</Button>
+              <Button variant="secondary">Projects</Button>
             </Link>
           </div>
         </div>

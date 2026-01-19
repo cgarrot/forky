@@ -685,13 +685,13 @@ export function CanvasFocusOverlay() {
                                   if (!title) return
 
                                   const prompt = [
-                                    'Tu es un agent exécutant une action précise.',
+                                    'You are an agent executing a specific action.',
                                     '',
                                     `Action: ${title}`,
                                     '',
-                                    'Contraintes:',
-                                    '- Propose une exécution pas-à-pas et un résultat concret.',
-                                    '- Si des informations manquent, pose des questions ciblées.',
+                                    'Constraints:',
+                                    '- Propose a step-by-step execution and a concrete result.',
+                                    '- If information is missing, ask targeted questions.',
                                   ].join('\n')
 
                                   const childId = createChildNode(node.id, prompt, {
@@ -887,7 +887,7 @@ export function CanvasFocusOverlay() {
                               return
                             }
 
-                            const prompt = node.prompt?.trim() ? node.prompt : 'Exécute cette action.'
+                            const prompt = node.prompt?.trim() ? node.prompt : 'Execute this action.'
                             const childId = createChildNode(node.id, prompt, {
                               logicalRole: 'artifact',
                               mode: 'build',
@@ -1049,7 +1049,7 @@ export function CanvasFocusOverlay() {
                  <div className="space-y-2">
                    <div className="flex items-center justify-between">
                      <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                       Réponse
+                       Response
                      </h3>
                      {isChallengerNode && challengerIntensity && extractQuestions(node.response).length > 0 && (
                        <button

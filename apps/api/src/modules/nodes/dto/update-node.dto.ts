@@ -14,20 +14,20 @@ import {
 import { PositionDto } from './position.dto';
 
 export class UpdateNodeDto {
-  @ApiPropertyOptional({ example: 'Nouveau prompt' })
+  @ApiPropertyOptional({ example: 'New prompt' })
   @IsOptional()
   @IsString()
   @MinLength(0)
   @MaxLength(2000)
   prompt?: string;
 
-  @ApiPropertyOptional({ example: 'Réponse...' })
+  @ApiPropertyOptional({ example: 'Response...' })
   @IsOptional()
   @IsString()
   @MaxLength(10000)
   response?: string;
 
-  @ApiPropertyOptional({ example: 'Résumé...' })
+  @ApiPropertyOptional({ example: 'Summary...' })
   @IsOptional()
   @IsString()
   @MaxLength(200)

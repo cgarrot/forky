@@ -26,7 +26,7 @@ export function QuickActionBar({ onAction, disabled }: QuickActionBarProps) {
   return (
     <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
       <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-        Actions rapides :
+        Quick actions:
       </p>
       <div className="flex flex-wrap gap-2">
         {[...quickActions]

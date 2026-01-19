@@ -204,10 +204,10 @@ export function BuildSetupOverlay() {
               <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 shrink-0 mt-0.5" />
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-orange-800 dark:text-orange-300">
-                  Impact global détecté
+                  Global impact detected
                 </h3>
                 <p className="text-xs text-orange-700 dark:text-orange-400 mt-1">
-                  Des changements majeurs ont été détectés dans le scope. Voulez-vous recalculer les suggestions ?
+                  Major changes have been detected in the scope. Do you want to recalculate suggestions?
                 </p>
                 <button
                   onClick={() => recomputeBuildSuggestions()}
@@ -226,18 +226,18 @@ export function BuildSetupOverlay() {
             <div className="p-4 space-y-6">
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Livrable <span className="text-red-500">*</span>
+                  Deliverable <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={buildSession.deliverable}
                   onChange={(e) => setBuildDeliverable(e.target.value)}
-                  placeholder="Ex: Plan de projet pour construire une application web"
+                  placeholder="Ex: Project plan to build a web application"
                   rows={3}
                   className="w-full px-3 py-2 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400"
                 />
                 {!buildSession.deliverable.trim() && (
                   <p className="text-xs text-orange-600 dark:text-orange-400">
-                    Le livrable est requis pour générer le plan
+                    The deliverable is required to generate the plan
                   </p>
                 )}
               </div>
@@ -283,7 +283,7 @@ export function BuildSetupOverlay() {
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700 space-y-4">
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Rôle
+                    Role
                   </label>
                   <select
                     value={roleFilter}

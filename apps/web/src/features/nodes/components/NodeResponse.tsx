@@ -21,7 +21,7 @@ export function NodeResponse({ content, isLoading, error, summary }: NodeRespons
           <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
           <div className="flex-1">
             <p className="text-sm font-medium text-red-900 dark:text-red-100">
-              {"Une erreur s'est produite"}
+              {"An error occurred"}
             </p>
             <p className="text-xs text-red-700 dark:text-red-300 mt-1">
               {error}
@@ -34,7 +34,7 @@ export function NodeResponse({ content, isLoading, error, summary }: NodeRespons
             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-gray-200 dark:border-gray-700">
               <Loader2 className="w-4 h-4 text-blue-500 animate-spin" />
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Génération en cours...
+                Generating...
               </p>
             </div>
           )}
@@ -105,13 +105,13 @@ export function NodeResponse({ content, isLoading, error, summary }: NodeRespons
         <div className="flex flex-col items-center justify-center h-full min-h-[100px] space-y-3">
           <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Génération en cours...
+            Generating...
           </p>
         </div>
       ) : (
         <div className="flex items-center justify-center h-full min-h-[100px]">
           <p className="text-sm text-gray-400 dark:text-gray-600 italic">
-            La réponse apparaîtra ici...
+            The response will appear here...
           </p>
         </div>
       )}

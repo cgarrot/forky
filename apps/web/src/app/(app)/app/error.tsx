@@ -18,8 +18,8 @@ export default function Error({
     <AppLayout>
       <div className="flex h-full items-center justify-center">
         <div className="space-y-4 text-center">
-          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">Une erreur est survenue.</div>
-          <Button onClick={reset}>Réessayer</Button>
+          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">An error occurred.</div>
+          <Button onClick={reset}>Try again</Button>
         </div>
       </div>
     </AppLayout>

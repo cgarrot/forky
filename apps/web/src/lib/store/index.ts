@@ -35,14 +35,14 @@ const defaultQuickActions: QuickAction[] = [
   },
   {
     id: 'qa-2',
-    label: 'Détails',
-    instruction: "Développe avec plus de détails et d'exemples.",
+    label: 'Details',
+    instruction: "Develop with more details and examples.",
     order: 1,
   },
   {
     id: 'qa-3',
     label: 'ELI5',
-    instruction: 'Explique comme à un enfant de 5 ans.',
+    instruction: 'Explain like I'm 5 years old.',
     order: 2,
   },
 ];
@@ -250,23 +250,16 @@ function detectModeFromPrompt(prompt: string): 'explore' | 'build' {
   const buildSignals = [
     'plan',
     'build',
-    'crée',
-    'creer',
-    'créer',
-    'implémente',
+    'create',
     'implement',
-    'implémenter',
-    'génère',
-    'genere',
-    'générer',
+    'generate',
     'roadmap',
-    'livrable',
     'deliverable',
     'mvp',
     'spec',
   ];
 
-  const exploreSignals = ['explique', 'explain', 'pourquoi', 'why', 'comment', 'how', 'compare', 'compar', 'résume', 'resume'];
+  const exploreSignals = ['explain', 'why', 'how', 'compare', 'summarize', 'resume'];
 
   const hasBuild = buildSignals.some((s) => text.includes(s));
   const hasExplore = exploreSignals.some((s) => text.includes(s));
@@ -291,7 +284,7 @@ function isCriticalPrompt(prompt: string): boolean {
     'risque',
     'risk',
     'decision',
-    'décision',
+    'decision',
     'must',
     'critical',
     'critique',
@@ -790,13 +783,13 @@ export const useStore = create<StoreState>()(
           const createdAt = now.toISOString();
 
           const prompt = [
-            `Objectif: produire un plan de projet excellent pour: ${session.deliverable}`,
+            `Objective: produce an excellent project plan for: ${session.deliverable}`,
             '',
-            'Contraintes:',
-            '- Réponds en Markdown structuré (titres, listes, checklists).',
-            '- Commence par un résumé ultra-concis.',
-            '- Inclus: scope, milestones, risques, plan de livraison, critères de succès.',
-            '- Utilise le contexte fourni par les nodes parents.',
+            'Constraints:',
+            '- Respond in structured Markdown (titles, lists, checklists).',
+            '- Start with an ultra-concise summary.',
+            '- Include: scope, milestones, risks, delivery plan, success criteria.',
+            '- Use the context provided by parent nodes.',
           ].join('\n');
 
           const metadata = writeOrchestrationMetadata(undefined, {
@@ -886,14 +879,14 @@ export const useStore = create<StoreState>()(
           createdArtifactId = artifactNodeId;
 
           const prompt = [
-            `Objectif: produire un livrable (artifact) à partir du plan et du contexte.`,
+            `Objective: produce a deliverable (artifact) from the plan and context.`,
             '',
-            `Livrable: ${deliverable}`,
+            `Deliverable: ${deliverable}`,
             '',
             'Contraintes:',
-            '- Réponds en Markdown structuré et directement utilisable.',
-            '- Respecte strictement le plan actif.',
-            '- Inclue les sections nécessaires (ex: intro, étapes, checklists, annexes).',
+            '- Respond in structured and directly usable Markdown.',
+            '- Strictly follow the active plan.',
+            '- Include necessary sections (e.g., intro, steps, checklists, appendices).',
           ].join('\n');
 
           const metadata = writeOrchestrationMetadata(undefined, {
@@ -985,9 +978,9 @@ export const useStore = create<StoreState>()(
             `Contexte: ${deliverable}`,
             '',
             'Contraintes:',
-            '- Retourne une liste structurée en Markdown (checklist) avec 10-25 items.',
-            '- Grouper par sections si nécessaire.',
-            '- Chaque item doit être actionnable et concret.',
+            '- Return a structured Markdown list (checklist) with 10-25 items.',
+            '- Group by sections if necessary.',
+            '- Each item must be actionable and concrete.',
           ].join('\n');
 
           const metadata = writeOrchestrationMetadata(undefined, {
@@ -1066,12 +1059,12 @@ export const useStore = create<StoreState>()(
           const deliverable = plan.deliverable ?? 'Plan';
 
           const prompt = [
-            `Objectif: rafraîchir le plan de projet pour: ${deliverable}`,
+            `Objective: refresh the project plan for: ${deliverable}`,
             '',
-            'Contraintes:',
-            '- Réponds en Markdown structuré (titres, listes, checklists).',
-            '- Mets à jour le plan en tenant compte des changements de contexte.',
-            '- Utilise le contexte fourni par les nodes parents.',
+            'Constraints:',
+            '- Respond in structured Markdown (titles, lists, checklists).',
+            '- Update the plan taking into account context changes.',
+            '- Use the context provided by parent nodes.',
           ].join('\n');
 
           const createdAt = now.toISOString();

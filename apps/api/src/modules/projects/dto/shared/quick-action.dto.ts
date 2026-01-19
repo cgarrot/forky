@@ -14,7 +14,7 @@ export class QuickActionDto {
   @MaxLength(30)
   label!: string;
 
-  @ApiProperty({ example: 'Reformule de manière plus concise.' })
+  @ApiProperty({ example: 'Rephrase more concisely.' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(500)

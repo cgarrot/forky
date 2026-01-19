@@ -70,7 +70,7 @@ export function QuickActionsList() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            ⚡ Actions Rapides
+            ⚡ Quick Actions
           </h3>
           <button
             onClick={handleCreate}
@@ -80,7 +80,7 @@ export function QuickActionsList() {
           </button>
         </div>
         <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-2">
-          Aucune action rapide
+          No quick actions
         </p>
       </div>
     )
@@ -90,7 +90,7 @@ export function QuickActionsList() {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-          ⚡ Actions Rapides ({quickActions.length})
+          ⚡ Quick Actions ({quickActions.length})
         </h3>
         <button
           onClick={handleCreate}

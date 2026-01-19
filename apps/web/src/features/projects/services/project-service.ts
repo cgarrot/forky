@@ -324,7 +324,7 @@ export async function importProject(json: string): Promise<StoredProject> {
   const imported: StoredProject = sanitizeProject({
     ...candidate,
     id: '',
-    name: `${candidate.name} (Importé)`,
+    name: `${candidate.name} (Imported)`,
     createdAt: nowIso,
     updatedAt: nowIso,
   })

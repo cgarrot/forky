@@ -114,12 +114,12 @@ export function DirectPromptInput({
       <div className="w-[400px] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border-2 border-blue-500 overflow-hidden">
         <div className="flex items-center justify-between px-3 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
           <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-            {sourceNodeId ? 'Nœud enfant' : 'Nouveau nœud'}
+            {sourceNodeId ? 'Child node' : 'New node'}
           </span>
           <button
             onClick={onCancel}
             className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-            title="Annuler (Échap)"
+            title="Cancel (Esc)"
           >
             <X className="w-4 h-4" />
           </button>
@@ -130,7 +130,7 @@ export function DirectPromptInput({
             ref={textareaRef}
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Écrivez votre prompt ici... (Entrée pour générer, Échap pour annuler)"
+            placeholder="Write your prompt here... (Enter to generate, Esc to cancel)"
             className="w-full h-24 p-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400"
           />
         </div>
@@ -142,7 +142,7 @@ export function DirectPromptInput({
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-purple-50 dark:bg-purple-900/20 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-purple-600 dark:text-purple-400 transition-colors text-xs font-medium"
             >
               <Zap className="w-3.5 h-3.5" />
-              <span>Actions rapides</span>
+              <span>Quick actions</span>
               {showQuickActions ? (
                 <ChevronUp className="w-3.5 h-3.5" />
               ) : (
@@ -180,7 +180,7 @@ export function DirectPromptInput({
 
         <div className="flex items-center justify-between px-3 py-2 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
           <span className="text-xs text-gray-500 dark:text-gray-400">
-            Entrée pour générer • Échap pour annuler
+            Enter to generate • Esc to cancel
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -196,7 +196,7 @@ export function DirectPromptInput({
                   ? 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 active:scale-95'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
               )}
-              title="Créer en brouillon (sans générer)"
+              title="Create as draft (without generating)"
             >
               <FileText className="w-3.5 h-3.5" />
               Draft
@@ -210,10 +210,10 @@ export function DirectPromptInput({
                   ? 'bg-blue-500 text-white hover:bg-blue-600 active:scale-95'
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
               )}
-              title="Générer (Entrée)"
+              title="Generate (Enter)"
             >
               <Send className="w-3.5 h-3.5" />
-              Générer
+              Generate
             </button>
           </div>
         </div>

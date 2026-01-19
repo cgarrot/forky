@@ -25,7 +25,7 @@ export function SystemPromptEditor() {
       <textarea
         defaultValue={settings.systemPrompt}
         onChange={handleChange}
-        placeholder="Entrez les instructions globales qui seront envoyées à chaque requête..."
+        placeholder="Enter global instructions that will be sent to each request..."
         className={cn(
           "w-full h-24 p-3 text-sm bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-400"
         )}

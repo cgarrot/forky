@@ -55,7 +55,7 @@ export function QuickActionModal() {
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={action ? "Modifier l'action" : 'Nouvelle action rapide'}
+      title={action ? "Edit action" : 'New quick action'}
       size="md"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,7 +64,7 @@ export function QuickActionModal() {
           label="Label"
           value={label}
           onChange={(e) => setLabel(e.target.value)}
-          placeholder="Ex: Résumer"
+          placeholder="Ex: Summarize"
         />
 
         <Textarea
@@ -72,16 +72,16 @@ export function QuickActionModal() {
           label="Instruction"
           value={instruction}
           onChange={(e) => setInstruction(e.target.value)}
-          placeholder="Ex: Résume ce contenu en quelques points clés..."
+          placeholder="Ex: Summarize this content in a few key points..."
           rows={4}
         />
 
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={handleClose}>
-            Annuler
+            Cancel
           </Button>
           <Button type="submit" disabled={!isValid}>
-            {action ? 'Enregistrer' : 'Créer'}
+            {action ? 'Save' : 'Create'}
           </Button>
         </div>
       </form>

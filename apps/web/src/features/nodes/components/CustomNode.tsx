@@ -52,7 +52,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
       const firstLine = node.prompt.split('\n')[0].trim()
       return firstLine.slice(0, 60) + (firstLine.length > 60 ? '...' : '')
     }
-    return 'Nouveau node'
+    return 'New node'
   }
 
   const handlePromptChange = useCallback(
@@ -141,31 +141,31 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
               {isLoading && (
                 <span className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
                   <RefreshCw className="w-3 h-3 animate-spin" />
-                  Génération...
+                  Generating...
                 </span>
               )}
               {isStale && (
                 <span className="flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
                   <RefreshCw className="w-3 h-3" />
-                  Obsolète
+                  Stale
                 </span>
               )}
               {isError && (
                 <span className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400">
                   <AlertTriangle className="w-3 h-3" />
-                  Erreur
+                  Error
                 </span>
               )}
               {!isLoading && !isStale && !isError && node.prompt && (
                 <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   <MessageSquare className="w-3 h-3" />
-                  {node.prompt.length > 0 ? 'Prêt' : 'Vide'}
+                  {node.prompt.length > 0 ? 'Ready' : 'Empty'}
                 </span>
               )}
               {node.response && (
                 <span className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                   <Sparkles className="w-3 h-3" />
-                  Réponse
+                  Response
                 </span>
               )}
             </div>
@@ -175,7 +175,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
             <button
               onClick={handleFocusMode}
               className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-all"
-              title="Mode focus (voir tout le contenu)"
+              title="Focus mode (view all content)"
             >
               <Maximize className="w-4 h-4" />
             </button>
@@ -183,7 +183,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
               <button
                 onClick={handleGenerate}
                 className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-all"
-                title="Générer"
+                title="Generate"
               >
                 <Play className="w-3.5 h-3.5" />
               </button>
@@ -191,7 +191,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
             <button
               onClick={handleDelete}
               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-all"
-              title="Supprimer"
+              title="Delete"
             >
               <X className="w-4 h-4" />
             </button>
@@ -208,7 +208,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
             ) : (
               <ChevronRight className="w-3 h-3" />
             )}
-            <span>Prompt {node.prompt ? `(${node.prompt.length} car.)` : '(vide)'}</span>
+            <span>Prompt {node.prompt ? `(${node.prompt.length} chars)` : '(empty)'}</span>
           </button>
 
           {isPromptExpanded && (
@@ -235,7 +235,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
             <div className="flex-1 min-w-0 text-left">
               <div className="flex items-center gap-1.5 mb-1">
                 <Sparkles className="w-3 h-3 text-blue-500" />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Réponse</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Response</span>
               </div>
               {node.summary ? (
                 <p className="text-xs text-gray-700 dark:text-gray-300 line-clamp-2 leading-relaxed">
@@ -273,7 +273,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
           <button
             onClick={handleBuild}
             className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium transition-all text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700"
-            title="Démarrer un build"
+            title="Start a build"
           >
             <Hammer className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Build</span>
@@ -288,7 +288,7 @@ function CustomNodeComponent({ id, data, selected }: CustomNodeProps) {
                   ? 'text-gray-400 cursor-not-allowed'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-200 dark:hover:bg-gray-700'
               )}
-              title="Régénérer en cascade"
+              title="Regenerate cascade"
             >
               <GitBranch className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Cascade</span>

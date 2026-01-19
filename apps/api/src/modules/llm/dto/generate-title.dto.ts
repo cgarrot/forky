@@ -7,7 +7,7 @@ export class GenerateTitleDto {
   @MinLength(1)
   prompt!: string;
 
-  @ApiProperty({ example: 'Réponse' })
+  @ApiProperty({ example: 'Response' })
   @IsString()
   @MinLength(1)
   response!: string;

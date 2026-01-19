@@ -199,7 +199,7 @@ export function ProjectWorkspace({ projectId }: { projectId: string }) {
       <div className="absolute top-4 left-4 z-10">
         <Link href="/projects">
           <Button variant="ghost" size="sm" icon={<ArrowLeft className="h-4 w-4" />}>
-            Retour aux projets
+            Back to projects
           </Button>
         </Link>
       </div>
