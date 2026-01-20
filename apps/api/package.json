@@ -1,14 +1,14 @@
 {
-  "name": "@forky/api",
+  "name": "@forky/api-app",
   "version": "0.0.1",
   "description": "forky API - NestJS backend",
   "author": "forky Team",
   "private": true,
   "license": "MIT",
   "scripts": {
-    "prebuild": "prisma generate",
+    "prebuild": "pnpm --filter @forky/api build && pnpm --filter @forky/api db:generate",
     "build": "nest build",
-    "predev": "nest build",
+    "predev": "pnpm --filter @forky/api build && nest build",
     "dev": "nest start --watch",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -22,21 +22,24 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:generate": "prisma generate",
+    "db:generate": "pnpm --filter @forky/api db:generate",
     "db:migrate:dev": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "db:seed": "node prisma/seed.js"
+    "db:seed": "node ../../packages/db/prisma/seed.js",
+    "swagger:generate": "ts-node -r tsconfig-paths/register src/swagger-generate.ts"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "schema": "../../packages/db/prisma/schema.prisma",
+    "seed": "node ../../packages/db/prisma/seed.js"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.9",
     "@ai-sdk/openai": "^3.0.8",
     "@ai-sdk/openai-compatible": "^2.0.4",
+    "@forky/api": "workspace:*",
     "@forky/config": "workspace:^",
-    "@forky/shared": "workspace:^",
+    "@forky/shared-core": "workspace:^",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -50,7 +53,6 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "ioredis": "^5.9.1",
-    "prisma": "5.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.3"
@@ -71,6 +73,7 @@
     "globals": "^16.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.4.2",
+    "prisma": "5.22.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
