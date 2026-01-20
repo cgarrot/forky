@@ -6,7 +6,8 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/features/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "../../packages/ui/src/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/app-ui/src/**/*.{js,ts,jsx,tsx,mdx}",
+    "../../packages/ui-kit/src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

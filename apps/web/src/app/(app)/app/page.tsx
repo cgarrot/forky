@@ -3,7 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppLayout, Spinner } from '@forky/ui'
-import { getLastProjectId } from '@/lib/user-preferences'
+import { getLastProjectId } from '@forky/state'
 
 export default function AppPage() {
   const router = useRouter()

@@ -1,4 +1,4 @@
-import { ProjectWorkspace } from './project-workspace'
+import { ProjectWorkspace } from '@forky/app-ui'
 
 export const dynamic = 'force-dynamic'
 
