@@ -2,21 +2,24 @@
   "name": "@forky/config",
   "version": "0.1.0",
   "private": false,
-  "type": "module",
+  "type": "commonjs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./env": {
       "types": "./dist/env.d.ts",
-      "import": "./dist/env.js"
+      "import": "./dist/env.js",
+      "require": "./dist/env.js"
     },
     "./llm": {
       "types": "./dist/llm.d.ts",
-      "import": "./dist/llm.js"
+      "import": "./dist/llm.js",
+      "require": "./dist/llm.js"
     }
   },
   "scripts": {
@@ -25,7 +28,7 @@
   },
   "dependencies": {
     "zod": "^3.22.0",
-    "@forky/shared": "workspace:*"
+    "@forky/shared-core": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

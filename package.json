@@ -10,17 +10,17 @@
     "clean": "turbo run clean && rm -rf node_modules apps/*/node_modules packages/*/node_modules",
     "web:dev": "pnpm --filter @forky/web run dev",
     "web:build": "pnpm --filter @forky/web run build",
-    "api:dev": "pnpm --filter @forky/api run dev",
-    "api:build": "pnpm --filter @forky/api run build"
+    "api:dev": "pnpm --filter @forky/api-app run dev",
+    "api:build": "pnpm --filter @forky/api-app run build"
   },
   "devDependencies": {
     "turbo": "^2.0.0",
-    "typescript": "^5.0.0",
+    "typescript": "5.9.3",
     "eslint": "^9.0.0"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.9.0",
     "pnpm": ">=8.0.0"
   },
   "keywords": [

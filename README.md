@@ -1,159 +1,136 @@
 # forky 🚀
 
-> Plateforme d'exploration non-linéaire des idées propulsée par l'IA
+> AI-powered platform for non-linear idea exploration.
 
-forky est une application moderne de brainstorming qui permet de créer des graphes de nœuds connectés avec génération LLM en temps réel. Construite avec une architecture hybride (Atomic Design + Feature-Based) pour une scalabilité maximale.
+forky is a graph-based brainstorming app to build, connect, and enrich ideas using streaming LLM nodes. The project is a monorepo with a Next.js frontend and a NestJS backend, backed by shared packages (app UI, design system, state, shared core/UI utilities, configuration, and database schema).
 
-## 🎨 Caractéristiques
+## ✨ Highlights
 
-- ✨ **Canvas infini** avec React Flow - Déplacez-vous librement dans votre espace d'idées
-- 🧠 **Nœuds LLM** - Génération de réponses intelligentes avec streaming
-- 🔗 **Connexions dynamiques** - Créez des branches et des relations entre idées
-- 🎯 **Mode focus** - Sélectionnez et surlignez des zones spécifiques
-- 💾 **Système de projets** - Sauvegardez et gérez plusieurs projets
-- ⚡ **Quick Actions** - Créez des macros pour les tâches récurrentes
-- 🎛️ **System prompt configurable** - Personnalisez le comportement de l'IA par projet
+- Infinite canvas for idea mapping
+- Streaming LLM generation inside nodes
+- Projects, sharing, and real-time collaboration (Socket.io)
+- Per-project system prompt configuration
+- Hybrid architecture: Atomic Design + Feature-Based + Screens, package-first UI/state
 
-## 🏗️ Architecture
+## 🧭 Architecture and structure
 
-forky utilise une architecture **monorepo hybride** combinant :
-
-- **Atomic Design** via `packages/ui` - Design system cohérent et réutilisable
-- **Feature-Based Architecture** via `apps/web/src/features` - Logique métier organisée par fonctionnalité
-
-### Structure du projet
+Monorepo organized around two apps and shared packages:
 
 ```
 forky/
 ├── apps/
-│   ├── web/                    # Frontend Next.js 15
-│   │   └── src/
-│   │       ├── app/             # Next.js App Router
-│   │       └── features/        # Features (canvas, nodes, sidebar, projects)
-│   └── api/                    # Backend NestJS (structure préparée)
-│
+│   ├── web/                     # Next.js frontend (App Router)
+│   └── api/                     # Thin NestJS bootstrap (package-first)
 ├── packages/
-│   ├── ui/                     # Design System (Atomic Design)
-│   │   ├── atoms/              # Button, Input, Modal, Badge, etc.
-│   │   ├── molecules/           # NodeHeader, FormField, etc.
-│   │   ├── organisms/          # Sidebar, CanvasControls, etc.
-│   │   └── templates/          # AppLayout, ProjectLayout, etc.
-│   ├── shared/                  # Code partagé
-│   │   ├── types/              # Types TypeScript
-│   │   ├── constants/          # Constantes d'application
-│   │   ├── utils/              # Utilitaires généraux
-│   │   ├── graph/              # Algorithmes de graphe (cascade, buildContext)
-│   │   └── validation/         # Schémas Zod
-│   ├── config/                  # Configuration partagée
-│   │   ├── env.ts              # Variables d'environnement
-│   │   └── llm.ts              # Configuration LLM
-│   └── contracts/              # Contrats partagés (DTOs, events, interfaces)
-│
-├── pnpm-workspace.yaml         # Workspace pnpm
-├── turbo.json                 # Configuration Turborepo
-├── tsconfig.base.json         # TypeScript base config
-└── docs/                     # Documentation technique
+│   ├── api/                     # NestJS backend core + modules
+│   ├── db/                      # Prisma schema + migrations + seeds
+│   ├── app-ui/                  # App UI (features + screens) -> @forky/app-ui
+│   ├── ui-kit/                  # Design system (atoms/molecules/organisms) -> @forky/ui
+│   ├── state/                   # Zustand store + domain state
+│   ├── client-api/              # Generated API client (typescript-axios)
+│   ├── shared-core/             # Types, graph, validation, core utils
+│   ├── shared-ui/               # UI-only utilities (e.g. cn)
+│   └── config/                  # Env + LLM configuration
+└── turbo.json / pnpm-workspace.yaml
 ```
 
-## 🛠️ Stack Technique
+## 📚 Docs
 
-### Frontend (`apps/web`)
-- **Framework**: Next.js 15.0.0
-- **React**: 19.0.0
-- **TypeScript**: 5.0.0 (strict mode)
-- **Styling**: Tailwind CSS 3.4.0
-- **State Management**: Zustand 5.0.0 + Immer 10.0.0
-- **Graph Rendering**: @xyflow/react 12.0.0
-- **Animations**: Framer Motion 11.0.0
-- **Icons**: Lucide React 0.400.0
-- **Markdown**: React Markdown 9.0.0
+- `docs/ARCHITECTURE.md`: system overview and runtime flows
+- `docs/CONVENTIONS.md`: module boundaries and contribution rules
 
-### Backend (`apps/api` - futur)
-- **Framework**: NestJS 11+
-- **TypeScript**: Strict mode
-- **Auth**: JWT
-- **Validation**: class-validator, class-transformer
+## 🛠️ Tech stack
 
-### Build Tools
-- **Package Manager**: pnpm 8.0.0+
-- **Monorepo**: Turborepo 2.0.0+
-- **TypeScript**: 5.0.0+
+**Frontend (`apps/web`)**
+- Next.js 16, React 19 (stable), strict TypeScript
+- Thin shell consuming `@forky/app-ui` (screens/features) + `@forky/ui` (design system) + `@forky/state`
+- Tailwind CSS, Zustand + Immer
+- React Flow (`@xyflow/react`) for the canvas
+- Direct API access via `@forky/client-api` through the state layer
 
-## 🚀 Démarrage Rapide
+**Backend (`packages/api` + `apps/api`)**
+- NestJS 11, strict TypeScript (package-first core + thin bootstrap)
+- Prisma + PostgreSQL
+- JWT auth, class-validator / class-transformer
+- Socket.io for real-time collaboration
 
-### Prérequis
+**Build & tooling**
+- pnpm workspaces, Turborepo, ESLint, Prettier
 
-- Node.js >= 18.0.0
-- pnpm >= 8.0.0
+## 🚀 Quick start
 
-### Installation
+### Prerequisites
+- Node.js >= 20.9
+- pnpm >= 8
+
+### Compatibility matrix
+- Next.js 16.1.3
+- React 19.2.3 / React DOM 19.2.3
+- TypeScript 5.9.3
+
+### Install
 
 ```bash
-# Installer les dépendances
 pnpm install
 
-# Lancer tous les apps en développement
+# Run the whole monorepo
 pnpm dev
 
-# Lancer uniquement le frontend
+# Run frontend only
 pnpm web:dev
 
-# Lancer uniquement le backend (quand implémenté)
+# Run API only
 pnpm api:dev
 ```
 
-### Scripts disponibles
+### Database (API)
 
-| Commande | Description |
-|-----------|-------------|
-| `pnpm dev` | Lancer tous les apps en mode dev |
-| `pnpm build` | Construire tous les apps |
-| `pnpm lint` | Linter tous les apps |
-| `pnpm clean` | Nettoyer node_modules et builds |
-| `pnpm web:dev` | Lancer uniquement le frontend (localhost:3000) |
-| `pnpm web:build` | Construire uniquement le frontend |
-| `pnpm api:dev` | Lancer uniquement l'API (localhost:3001) |
-| `pnpm api:build` | Construire uniquement l'API |
+A Postgres + Redis stack is available via Docker:
 
-## 📚 Documentation
+```bash
+docker compose up -d
+```
 
-- [Architecture Hybride](./docs/ARCHITECTURE_HYBRID.md) - Vue d'ensemble de l'architecture
-- [Frontend Architecture](./docs/FRONTEND_ARCHITECTURE.md) - Architecture technique du frontend
-- [Design System](./docs/DESIGN_SYSTEM.md) - Documentation du design system
-- [Feature Structure](./docs/FEATURE_STRUCTURE.md) - Structure des features
-- [Implementation Plan](./docs/IMPLEMENTATION_PLAN.md) - Plan d'implémentation détaillé
+Then configure `DATABASE_URL` (and `REDIS_URL` if needed) and run:
 
-## 🎯 Roadmap
+```bash
+pnpm --filter @forky/api-app db:migrate:dev
+pnpm --filter @forky/api-app db:seed
+```
 
-### v0.1.0 - Phase actuelle
-- ✅ Structure monorepo avec pnpm workspace
-- ✅ Next.js 15 avec App Router
-- ✅ Structure feature-based pour canvas, nodes, sidebar, projects
-- ✅ Design system Atomic Design (à implémenter)
-- 🚧 Nœuds avec génération LLM
-- 🚧 Canvas infini avec React Flow
-- 🚧 Système de projets avec sauvegarde
+### Environment variables
 
-### v0.2.0 - Prochainement
-- Design System complet (atomes, molecules, organismes)
-- Intégration complète de React Flow
-- Quick Actions et System Prompt
-- Export de projets
+The environment schema is centralized in `packages/config/src/env.ts`. Common variables:
 
-### v0.3.0 - Futur
-- Backend NestJS complet
-- Multi-user en temps réel
-- Contenu multimodal (images, vidéos)
-- Interactions vocales
+- `DATABASE_URL` (PostgreSQL)
+- `REDIS_URL`
+- `OPENAI_API_KEY` / `ANTHROPIC_API_KEY`
+- `COLLABORATION_ENABLED` / `WEBSOCKET_URL`
 
-## 🤝 Contribution
+## 🔌 API client generation
 
-Les contributions sont les bienvenues ! Veuillez consulter [CONTRIBUTING.md](./CONTRIBUTING.md) pour plus de détails.
+The backend exposes a Swagger spec, and the frontend client is generated from it:
 
-## 📄 Licence
+```bash
+pnpm --filter @forky/api-app swagger:generate
+pnpm --filter @forky/client-api generate
+```
+
+## 📜 Useful scripts
+
+| Command | Description |
+|---|---|
+| `pnpm dev` | Run all apps |
+| `pnpm build` | Build all apps |
+| `pnpm lint` | Lint all apps |
+| `pnpm clean` | Clean builds + node_modules |
+| `pnpm web:dev` | Frontend only (localhost:3000) |
+| `pnpm api:dev` | API only (localhost:3001) |
+
+## 🧩 Contributing
+
+Contributions are welcome. Follow the conventions described in each package README and keep package boundaries intact.
+
+## 📄 License
 
 MIT © forky Team
-
----
-
-**forky v0.1.0** - Créé avec ❤️ par l'équipe forky
