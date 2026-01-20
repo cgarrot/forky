@@ -1,0 +1,23 @@
+---
+description: "Frontend conventions for Next.js, app-ui, state, and ui-kit."
+globs:
+  - "apps/web/**"
+  - "packages/app-ui/**"
+  - "packages/ui-kit/**"
+  - "packages/state/**"
+  - "packages/shared-ui/**"
+alwaysApply: false
+---
+
+# Frontend conventions
+
+- `apps/web` is a thin Next.js App Router shell; keep domain logic in packages.
+- Route files should mostly wire `@forky/app-ui` screens and avoid local business logic.
+- New screens go in `packages/app-ui/src/screens/<domain>`, features in `packages/app-ui/src/features/<domain>`.
+- Use the design system in `packages/ui-kit` and UI helpers in `packages/shared-ui`.
+- Use `@forky/state` for domain state and API access; avoid direct API calls in app shells and UI components.
+- Add new client API calls in `packages/state/src/api` and wire them through state stores.
+- Tailwind is the styling layer; keep components composable and use named exports.
+
+@apps/web/README.md
+@docs/CONVENTIONS.md

@@ -1,0 +1,25 @@
+---
+description: "Backend conventions for NestJS, Prisma, and API contracts."
+globs:
+  - "apps/api/**"
+  - "packages/api/**"
+  - "packages/db/**"
+  - "packages/config/**"
+  - "packages/shared-core/**"
+  - "packages/client-api/**"
+alwaysApply: false
+---
+
+# Backend conventions
+
+- `apps/api` is the thin NestJS bootstrap; core modules live in `packages/api`.
+- New API modules: `packages/api/src/modules/<domain>`; DTOs in `packages/api/src/modules/<domain>/dto`.
+- Shared guards/filters/decorators live in `packages/api/src/common`.
+- DB schema changes go in `packages/db/prisma/schema.prisma`, with migrations and seeds in `packages/db/prisma`.
+- DTOs should keep validation and Swagger decorators aligned (`class-validator`, `class-transformer`, `@nestjs/swagger`).
+- If API contracts change, regenerate Swagger and `@forky/client-api`; do not edit generated artifacts by hand.
+- Use `pnpm --filter @forky/api-app swagger:generate` and `pnpm --filter @forky/client-api generate` for codegen.
+- Backend packages are CommonJS; avoid ESM-only Node features in backend packages.
+
+@apps/api/README.md
+@docs/CONVENTIONS.md

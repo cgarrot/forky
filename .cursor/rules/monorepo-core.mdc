@@ -1,0 +1,16 @@
+---
+description: "Core monorepo boundaries and architecture."
+alwaysApply: true
+---
+
+# Monorepo core
+
+- Apps (`apps/*`) are thin shells only; domain logic lives in `packages/*`.
+- Follow `docs/ARCHITECTURE.md` and `docs/CONVENTIONS.md` for boundaries.
+- Dependency rules: packages never depend on apps; `@forky/ui` must not depend on `@forky/app-ui`; `@forky/shared-core` must not depend on UI packages; `@forky/config` must not depend on frontend packages.
+- Keep `index.ts` as the public entrypoint for each package folder; prefer named exports.
+- Module system: backend packages are CommonJS; frontend/shared UI packages are ESM. Avoid ESM-only Node features in backend packages.
+- Testing expectations: API modules should include unit tests for services/guards; critical workflows should have at least one integration/e2e test; state utilities should have tests for reducers/serialization.
+
+@docs/ARCHITECTURE.md
+@docs/CONVENTIONS.md
