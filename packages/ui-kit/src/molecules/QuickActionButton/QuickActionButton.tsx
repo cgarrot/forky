@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { Button } from '../../atoms/Button';
 
 export type QuickActionColor = 'blue' | 'green' | 'orange' | 'purple' | 'gray';

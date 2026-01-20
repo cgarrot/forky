@@ -2,7 +2,7 @@
 
 import { useEffect, useCallback } from 'react';
 import { Check, X, AlertCircle, Info } from 'lucide-react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { IconButton } from '../../atoms/IconButton';
 
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';

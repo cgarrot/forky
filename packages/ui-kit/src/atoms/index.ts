@@ -5,3 +5,4 @@ export * from './Modal';
 export * from './Spinner';
 export * from './Textarea';
 export * from './IconButton';
+export * from './Skeleton';

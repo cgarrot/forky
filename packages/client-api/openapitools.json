@@ -1,0 +1,6 @@
+{
+  "generator-cli": {
+    "version": "7.10.0",
+    "storageDir": "./.openapi-generator"
+  }
+}

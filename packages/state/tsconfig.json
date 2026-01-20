@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist",
+    "lib": ["ES2022", "DOM"],
+    "baseUrl": ".",
+    "paths": {
+      "@forky/shared-core": ["../shared-core/dist"],
+      "@forky/shared-core/*": ["../shared-core/dist/*"],
+      "@forky/client-api": ["../client-api/dist"],
+      "@forky/client-api/*": ["../client-api/dist/*"]
+    }
+  },
+  "references": [
+    { "path": "../shared-core" },
+    { "path": "../client-api" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

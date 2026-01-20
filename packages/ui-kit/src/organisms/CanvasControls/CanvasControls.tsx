@@ -1,7 +1,7 @@
 'use client';
 
 import { ZoomIn, ZoomOut, Maximize2, RotateCcw } from 'lucide-react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { Button } from '../../atoms/Button';
 
 export interface CanvasControlsProps {

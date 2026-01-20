@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 
 export interface ModalProps {
   isOpen: boolean;

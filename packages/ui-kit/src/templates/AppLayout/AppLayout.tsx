@@ -1,7 +1,7 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 
 export interface AppLayoutProps {
   children: ReactNode;

@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { X, Menu } from 'lucide-react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 
 export interface SidebarProps {
   isOpen: boolean;

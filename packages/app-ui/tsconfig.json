@@ -7,8 +7,16 @@
     "declarationMap": true,
     "baseUrl": ".",
     "paths": {
-      "@forky/shared": ["../shared/src"],
-      "@forky/shared/*": ["../shared/src/*"]
+      "@forky/shared-core": ["../shared-core/src"],
+      "@forky/shared-core/*": ["../shared-core/src/*"],
+      "@forky/shared-ui": ["../shared-ui/src"],
+      "@forky/shared-ui/*": ["../shared-ui/src/*"],
+      "@forky/state": ["../state/src"],
+      "@forky/state/*": ["../state/src/*"],
+      "@forky/ui": ["../ui-kit/src"],
+      "@forky/ui/*": ["../ui-kit/src/*"],
+      "@forky/client-api": ["../client-api/src"],
+      "@forky/client-api/*": ["../client-api/src/*"]
     }
   },
   "include": ["src/**/*"],

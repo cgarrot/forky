@@ -1,6 +1,6 @@
 'use client';
 
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { Loader2 } from 'lucide-react';
 
 export interface SpinnerProps {

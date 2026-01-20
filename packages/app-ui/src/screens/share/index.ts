@@ -1,0 +1,1 @@
+export { ShareJoinPage } from './ShareJoinPage'

@@ -1,7 +1,7 @@
 'use client';
 
 import { RefreshCw, AlertTriangle, X, Maximize } from 'lucide-react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { IconButton } from '../../atoms/IconButton';
 
 export type NodeStatus = 'idle' | 'loading' | 'error' | 'stale';

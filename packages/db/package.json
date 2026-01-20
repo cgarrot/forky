@@ -1,0 +1,13 @@
+{
+  "name": "@forky/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "prisma": {
+    "schema": "prisma/schema.prisma",
+    "seed": "tsx prisma/seed.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}

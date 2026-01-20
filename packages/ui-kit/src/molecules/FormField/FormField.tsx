@@ -1,7 +1,7 @@
 'use client';
 
 import { forwardRef } from 'react';
-import { cn } from '@forky/shared';
+import { cn } from '@forky/shared-ui';
 import { Input } from '../../atoms/Input';
 
 export interface FormFieldProps
